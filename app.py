@@ -5,7 +5,7 @@ from models import db, User, LandingTeacher, LandingStudent, LandingFAQ
 from database import init_db
 
 def create_app():
-    app = Flask(__name__)
+    app = Flask(__name__, static_url_path='/quorra/static')
     app.config.from_object(Config)
 
     # Initialize extensions
