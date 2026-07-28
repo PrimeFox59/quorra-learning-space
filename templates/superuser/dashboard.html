@@ -1,0 +1,552 @@
+{% extends "base.html" %}
+
+{% block title %}Superuser Command Center - Quorra Space{% endblock %}
+
+{% block content %}
+<div class="space-y-8">
+    <!-- Header -->
+    <div class="glass-card p-6 md:p-8 border-l-4 border-purple-500 relative overflow-hidden flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div class="absolute -right-10 -bottom-10 w-48 h-48 bg-purple-500/10 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="relative z-10">
+            <span class="text-[10px] font-mono text-purple-400 font-bold uppercase tracking-widest flex items-center gap-1 mb-0.5">
+                <i class="bi bi-shield-check"></i> Akses Kontrol Utama
+            </span>
+            <h1 class="text-2xl md:text-3xl font-black text-white font-heading mt-0.5 flex items-center gap-2.5">
+                <i class="bi bi-cpu-fill text-purple-400"></i> Superuser Command Center
+            </h1>
+        </div>
+        <div class="flex items-center gap-3 relative z-10 flex-wrap">
+            {% if pending_users_count > 0 %}
+            <span class="px-3.5 py-1.5 rounded-full text-xs font-mono font-bold bg-amber-950 border border-amber-500 text-amber-300 shadow-md animate-pulse">
+                <i class="bi bi-hourglass-split mr-1"></i> {{ pending_users_count }} Akun Menunggu Konfirmasi
+            </span>
+            {% else %}
+            <span class="px-3.5 py-1.5 rounded-full text-xs font-mono font-bold bg-purple-950 border border-purple-500 text-purple-300 shadow-md">
+                <i class="bi bi-shield-lock-fill text-amber-400 mr-1"></i> Superuser Active
+            </span>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Stat Grid -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3.5">
+        <div class="glass-card p-4 border-l-4 border-purple-500 hover:border-purple-400 transition-all">
+            <div class="text-[10px] font-mono text-slate-400 font-bold uppercase">TOTAL USER</div>
+            <div class="text-2xl font-black text-white font-mono mt-0.5">{{ total_users }}</div>
+            <div class="text-[10px] text-slate-500 mt-1 font-mono">Guru: {{ total_gurus }} | Murid: {{ total_murids }}</div>
+        </div>
+
+        <div class="glass-card p-4 border-l-4 border-amber-500 hover:border-amber-400 transition-all">
+            <div class="text-[10px] font-mono text-slate-400 font-bold uppercase">MENUNGGU KONFIRMASI</div>
+            <div class="text-2xl font-black text-amber-400 font-mono mt-0.5">{{ pending_users_count }}</div>
+            <div class="text-[10px] text-slate-500 mt-1 font-mono">Pendaftaran Baru</div>
+        </div>
+
+        <div class="glass-card p-4 border-l-4 border-cyan-500 hover:border-cyan-400 transition-all">
+            <div class="text-[10px] font-mono text-slate-400 font-bold uppercase">TOTAL WORKSPACE</div>
+            <div class="text-2xl font-black text-cyan-400 font-mono mt-0.5">{{ total_workspaces }}</div>
+            <div class="text-[10px] text-slate-500 mt-1 font-mono">Total Kelas: {{ total_classes }}</div>
+        </div>
+
+        <div class="glass-card p-4 border-l-4 border-indigo-500 hover:border-indigo-400 transition-all">
+            <div class="text-[10px] font-mono text-slate-400 font-bold uppercase">TOTAL QUIZ / SUBMISSION</div>
+            <div class="text-2xl font-black text-indigo-400 font-mono mt-0.5">{{ total_quizzes }} / {{ total_attempts }}</div>
+            <div class="text-[10px] text-slate-500 mt-1 font-mono">Semua Evaluasi</div>
+        </div>
+    </div>
+
+    <!-- Gemini AI Configuration Panel -->
+    <div class="glass-card p-5 border-l-4 border-cyan-400 border border-slate-800">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+            <div>
+                <h2 class="text-base font-bold text-white font-heading flex items-center gap-2">
+                    <i class="bi bi-robot text-cyan-400 text-xl"></i> Konfigurasi AI Generator (Google Gemini)
+                </h2>
+                <p class="text-xs text-slate-400 mt-0.5">Konfigurasi API Key dan pemilihan Model AI resmi dari Google Gemini.</p>
+            </div>
+            <span class="px-3 py-1 rounded-full text-xs font-mono font-bold self-start sm:self-auto shrink-0
+                {% if gemini_api_key %} bg-cyan-950/90 border border-cyan-500/50 text-cyan-300
+                {% else %} bg-amber-950/90 border border-amber-500/50 text-amber-300 {% endif %}">
+                {% if gemini_api_key %}<i class="bi bi-check-circle-fill text-emerald-400 mr-1"></i> API Key Stored{% else %}<i class="bi bi-exclamation-triangle-fill text-amber-400 mr-1"></i> API Key Belum Diisi{% endif %}
+            </span>
+        </div>
+
+        <form action="{{ url_for('superuser.update_ai_config') }}" method="POST" class="space-y-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-[10px] font-mono uppercase text-cyan-400 font-bold mb-1">
+                        Gemini API Key
+                    </label>
+                    <input type="password" name="gemini_api_key" value="{{ gemini_api_key }}" placeholder="AIzaSy..."
+                        class="w-full px-3.5 py-2 bg-slate-950 border border-slate-700/80 rounded-xl text-slate-100 placeholder-slate-600 focus:outline-none focus:border-cyan-400 font-mono text-xs">
+                    <span class="text-[9px] text-slate-500 block mt-1">API Key tersimpan di SQLite database sistem.</span>
+                </div>
+
+                <div>
+                    <label class="block text-[10px] font-mono uppercase text-purple-400 font-bold mb-1">
+                        Model Gemini AI
+                    </label>
+                    <select name="gemini_model" class="w-full px-3.5 py-2 bg-slate-950 border border-slate-700/80 rounded-xl text-slate-100 focus:outline-none focus:border-purple-400 font-mono text-xs">
+                        {% for m in available_models %}
+                        <option value="{{ m }}" {% if gemini_model == m %}selected{% endif %}>{{ m }}</option>
+                        {% endfor %}
+                    </select>
+                    <span class="text-[9px] text-slate-500 block mt-1">Pilihan model resmi Google Gemini AI.</span>
+                </div>
+            </div>
+
+            <div class="flex justify-end pt-1">
+                <button type="submit" class="btn-space-cyan px-5 py-2 rounded-xl font-bold text-xs font-heading flex items-center gap-1.5 shadow-md">
+                    <i class="bi bi-floppy-fill text-xs"></i> Simpan Konfigurasi AI
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- User Management & Approval Table -->
+    <div class="glass-card p-4 sm:p-5 border border-slate-800">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+            <div>
+                <h2 class="text-base font-bold text-white font-heading flex items-center gap-2">
+                    <i class="bi bi-people-fill text-purple-400"></i> Manajemen Pengguna & Persetujuan Register
+                </h2>
+                <p class="text-[11px] text-slate-400 mt-0.5">Konfirmasi user baru yang terdaftar agar dapat mengakses stasiun.</p>
+            </div>
+            {% if pending_users_count > 0 %}
+            <span class="px-2.5 py-1 rounded bg-amber-950 border border-amber-500/50 text-amber-300 text-xs font-mono font-bold">
+                ⚠️ {{ pending_users_count }} User Perlu Persetujuan
+            </span>
+            {% endif %}
+        </div>
+
+        <div class="w-full rounded-xl border border-slate-800/80 overflow-hidden">
+            <table class="w-full text-left table-fixed border-collapse">
+                <thead class="bg-slate-900/95 text-[10px] font-mono uppercase text-slate-400 border-b border-slate-800">
+                    <tr>
+                        <th class="py-2.5 px-2.5 w-[6%] text-center">ID</th>
+                        <th class="py-2.5 px-2.5 w-[20%]">Astronot</th>
+                        <th class="py-2.5 px-2.5 w-[22%]">Email</th>
+                        <th class="py-2.5 px-2.5 w-[12%]">Role</th>
+                        <th class="py-2.5 px-2.5 w-[18%]">Status Konfirmasi</th>
+                        <th class="py-2.5 px-2.5 w-[22%] text-center">Aksi / Kelola</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-800/60 font-mono text-[11px]">
+                    {% for u in users %}
+                    <tr class="hover:bg-slate-800/50 transition-colors {% if not u.is_approved %} bg-amber-950/20 {% endif %}">
+                        <td class="py-2 px-2.5 text-slate-500 text-center">#{{ u.id }}</td>
+                        <td class="py-2 px-2.5 font-bold text-white truncate" title="{{ u.username }}">
+                            {{ u.username }}
+                            {% if u.id == current_user.id %}
+                            <span class="text-[9px] text-cyan-400 font-normal ml-1">(Anda)</span>
+                            {% endif %}
+                        </td>
+                        <td class="py-2 px-2.5 text-slate-400 truncate" title="{{ u.email }}">{{ u.email }}</td>
+                        <td class="py-2 px-2.5">
+                            <span class="px-2 py-0.5 rounded text-[10px] font-bold border inline-block
+                                {% if u.role == 'SUPERUSER' %} bg-purple-950/90 border-purple-500 text-purple-300
+                                {% elif u.role == 'GURU' %} bg-emerald-950/90 border-emerald-500 text-emerald-300
+                                {% else %} bg-sky-950/90 border-sky-500 text-sky-300 {% endif %}">
+                                {{ u.role }}
+                            </span>
+                        </td>
+                        <td class="py-2 px-2.5">
+                            {% if u.is_approved %}
+                            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-emerald-950/80 border border-emerald-500/50 text-emerald-300 text-[10px] font-bold">
+                                <i class="bi bi-check-circle-fill text-emerald-400"></i> Disetujui
+                            </span>
+                            {% else %}
+                            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-amber-950/90 border border-amber-500/80 text-amber-300 text-[10px] font-bold animate-pulse">
+                                <i class="bi bi-hourglass-split text-amber-400"></i> Menunggu Persetujuan
+                            </span>
+                            {% endif %}
+                        </td>
+                        <td class="py-2 px-2.5">
+                            <div class="flex items-center justify-center gap-1.5">
+                                {% if not u.is_approved %}
+                                <form action="{{ url_for('superuser.approve_user', user_id=u.id) }}" method="POST">
+                                    <button type="submit" class="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-500 text-white rounded text-[10px] font-bold flex items-center gap-1 shadow-sm font-heading">
+                                        <i class="bi bi-check-lg"></i> Setujui
+                                    </button>
+                                </form>
+                                {% endif %}
+
+                                <form action="{{ url_for('superuser.update_user_role', user_id=u.id) }}" method="POST" class="flex items-center gap-1">
+                                    <select name="role" class="bg-slate-950 border border-slate-700/80 rounded text-[10px] py-1 px-1 text-slate-200 focus:outline-none focus:border-purple-400">
+                                        <option value="MURID" {% if u.role == 'MURID' %}selected{% endif %}>MURID</option>
+                                        <option value="GURU" {% if u.role == 'GURU' %}selected{% endif %}>GURU</option>
+                                        <option value="SUPERUSER" {% if u.role == 'SUPERUSER' %}selected{% endif %}>SUPERUSER</option>
+                                    </select>
+                                    <button type="submit" class="px-2 py-1 bg-purple-700 hover:bg-purple-600 text-white rounded text-[10px] font-bold shadow-sm">
+                                        Ubah
+                                    </button>
+                                </form>
+
+                                {% if u.id != current_user.id %}
+                                <form action="{{ url_for('superuser.delete_user', user_id=u.id) }}" method="POST" onsubmit="return confirm('Hapus/Tolak user {{ u.username }} dari sistem?');">
+                                    <button type="submit" class="p-1 text-slate-400 hover:text-rose-400 text-xs" title="Hapus User">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </form>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- LANDING PAGE CMS MANAGEMENT SECTION        -->
+    <!-- ========================================== -->
+    <div class="glass-card p-5 border-l-4 border-amber-500 space-y-6">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-4">
+            <div>
+                <span class="text-[10px] font-mono text-amber-400 font-bold uppercase tracking-widest flex items-center gap-1">
+                    <i class="bi bi-window-stack"></i> Content Management System
+                </span>
+                <h2 class="text-xl font-extrabold text-white font-heading mt-0.5 flex items-center gap-2">
+                    <i class="bi bi-pencil-square text-amber-400"></i> CMS Pengelolaan Landing Page Promosi
+                </h2>
+                <p class="text-xs text-slate-400 mt-0.5">Tambah, Edit, atau Hapus daftar Mentor, Testimoni Siswa, dan FAQ yang tampil pada Halaman Utama Promosi (/quorra/).</p>
+            </div>
+        </div>
+
+        <!-- 1. CMS TEACHERS / MENTORS -->
+        <div class="space-y-4">
+            <div class="flex items-center justify-between">
+                <h3 class="text-base font-bold text-white font-heading flex items-center gap-2">
+                    <i class="bi bi-award-fill text-purple-400"></i> Kelola Mentor & Pengajar Promosi ({{ cms_teachers|length }})
+                </h3>
+                <button onclick="document.getElementById('addTeacherModal').classList.remove('hidden')" class="btn-space-purple px-3 py-1.5 rounded-xl text-xs font-bold font-heading flex items-center gap-1">
+                    <i class="bi bi-plus-lg"></i> Tambah Mentor
+                </button>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {% for t in cms_teachers %}
+                <div class="glass-card p-4 border border-slate-800 space-y-3 flex flex-col justify-between">
+                    <div class="space-y-2">
+                        <div class="relative rounded-lg overflow-hidden h-36 bg-slate-950 border border-slate-700/60">
+                            <img src="{{ url_for('static', filename=t.photo_path or 'uploads/landing/teacher_alistair.png') }}" class="w-full h-full object-cover object-top">
+                        </div>
+                        <h4 class="font-bold text-white text-sm font-heading">{{ t.name }}</h4>
+                        <span class="text-[11px] text-purple-400 font-mono font-semibold block">{{ t.title }}</span>
+                        <p class="text-[11px] text-slate-400 line-clamp-2">{{ t.description }}</p>
+                    </div>
+                    <div class="flex items-center justify-between pt-2 border-t border-slate-800 text-xs">
+                        <button onclick="document.getElementById('editTeacherModal_{{ t.id }}').classList.remove('hidden')" class="text-cyan-400 hover:underline text-[11px] font-mono font-bold flex items-center gap-1">
+                            <i class="bi bi-pencil-square"></i> Edit
+                        </button>
+                        <form action="{{ url_for('superuser.delete_cms_teacher', id=t.id) }}" method="POST" onsubmit="return confirm('Hapus mentor {{ t.name }}?');">
+                            <button type="submit" class="text-rose-400 hover:text-rose-300 text-xs p-1" title="Hapus Mentor">
+                                <i class="bi bi-trash"></i> Hapus
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Edit Teacher Modal -->
+                <div id="editTeacherModal_{{ t.id }}" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center hidden p-4">
+                    <div class="glass-card max-w-md w-full p-5 border-purple-500/50 shadow-2xl">
+                        <div class="flex justify-between items-center mb-3">
+                            <h3 class="text-sm font-bold text-white font-heading">Edit Mentor {{ t.name }}</h3>
+                            <button onclick="document.getElementById('editTeacherModal_{{ t.id }}').classList.add('hidden')" class="text-slate-400 hover:text-white">
+                                <i class="bi bi-x-lg"></i>
+                            </button>
+                        </div>
+                        <form action="{{ url_for('superuser.edit_cms_teacher', id=t.id) }}" method="POST" enctype="multipart/form-data" class="space-y-3 text-xs">
+                            <div>
+                                <label class="block text-[10px] font-mono text-slate-300 uppercase mb-1">Nama Lengkap</label>
+                                <input type="text" name="name" value="{{ t.name }}" required class="w-full px-3 py-1.5 bg-slate-950 border border-slate-700 rounded-lg text-slate-100">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-mono text-slate-300 uppercase mb-1">Gelar / Spesialisasi</label>
+                                <input type="text" name="title" value="{{ t.title }}" required class="w-full px-3 py-1.5 bg-slate-950 border border-slate-700 rounded-lg text-slate-100">
+                            </div>
+                            <div class="grid grid-cols-2 gap-2">
+                                <div>
+                                    <label class="block text-[10px] font-mono text-slate-300 uppercase mb-1">Pengalaman</label>
+                                    <input type="text" name="experience" value="{{ t.experience }}" required class="w-full px-3 py-1.5 bg-slate-950 border border-slate-700 rounded-lg text-slate-100">
+                                </div>
+                                <div>
+                                    <label class="block text-[10px] font-mono text-slate-300 uppercase mb-1">Rating</label>
+                                    <input type="text" name="rating" value="{{ t.rating }}" required class="w-full px-3 py-1.5 bg-slate-950 border border-slate-700 rounded-lg text-slate-100">
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-mono text-slate-300 uppercase mb-1">Deskripsi Singkat</label>
+                                <textarea name="description" rows="2" required class="w-full px-3 py-1.5 bg-slate-950 border border-slate-700 rounded-lg text-slate-100">{{ t.description }}</textarea>
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-mono text-slate-300 uppercase mb-1">Ganti Foto (Opsional)</label>
+                                <input type="file" name="photo" accept="image/*" class="w-full text-[10px] text-slate-400">
+                            </div>
+                            <div class="flex justify-end gap-2 pt-2">
+                                <button type="button" onclick="document.getElementById('editTeacherModal_{{ t.id }}').classList.add('hidden')" class="px-3 py-1 rounded text-slate-400">Batal</button>
+                                <button type="submit" class="btn-space-purple px-4 py-1.5 rounded-lg font-bold">Simpan</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Add Teacher Modal -->
+        <div id="addTeacherModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center hidden p-4">
+            <div class="glass-card max-w-md w-full p-5 border-purple-500/50 shadow-2xl">
+                <div class="flex justify-between items-center mb-3">
+                    <h3 class="text-sm font-bold text-white font-heading">Tambah Mentor Baru</h3>
+                    <button onclick="document.getElementById('addTeacherModal').classList.add('hidden')" class="text-slate-400 hover:text-white">
+                        <i class="bi bi-x-lg"></i>
+                    </button>
+                </div>
+                <form action="{{ url_for('superuser.add_cms_teacher') }}" method="POST" enctype="multipart/form-data" class="space-y-3 text-xs">
+                    <div>
+                        <label class="block text-[10px] font-mono text-slate-300 uppercase mb-1">Nama Lengkap</label>
+                        <input type="text" name="name" required placeholder="Dr. Astro Nova" class="w-full px-3 py-1.5 bg-slate-950 border border-slate-700 rounded-lg text-slate-100">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-mono text-slate-300 uppercase mb-1">Gelar / Spesialisasi</label>
+                        <input type="text" name="title" required placeholder="Master Fisika Kuantum" class="w-full px-3 py-1.5 bg-slate-950 border border-slate-700 rounded-lg text-slate-100">
+                    </div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="block text-[10px] font-mono text-slate-300 uppercase mb-1">Pengalaman</label>
+                            <input type="text" name="experience" value="5+ Tahun Pengalaman" required class="w-full px-3 py-1.5 bg-slate-950 border border-slate-700 rounded-lg text-slate-100">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-mono text-slate-300 uppercase mb-1">Rating</label>
+                            <input type="text" name="rating" value="4.95 / 5.0" required class="w-full px-3 py-1.5 bg-slate-950 border border-slate-700 rounded-lg text-slate-100">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-mono text-slate-300 uppercase mb-1">Deskripsi Singkat</label>
+                        <textarea name="description" rows="2" required placeholder="Tuliskan deskripsi pengalaman & keahlian..." class="w-full px-3 py-1.5 bg-slate-950 border border-slate-700 rounded-lg text-slate-100"></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-mono text-slate-300 uppercase mb-1">Foto Profile (Opsional)</label>
+                        <input type="file" name="photo" accept="image/*" class="w-full text-[10px] text-slate-400">
+                    </div>
+                    <div class="flex justify-end gap-2 pt-2">
+                        <button type="button" onclick="document.getElementById('addTeacherModal').classList.add('hidden')" class="px-3 py-1 rounded text-slate-400">Batal</button>
+                        <button type="submit" class="btn-space-purple px-4 py-1.5 rounded-lg font-bold">Tambahkan</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- 2. CMS STUDENT TESTIMONIALS -->
+        <div class="space-y-4 border-t border-slate-800 pt-6">
+            <div class="flex items-center justify-between">
+                <h3 class="text-base font-bold text-white font-heading flex items-center gap-2">
+                    <i class="bi bi-trophy-fill text-amber-400"></i> Kelola Testimoni Siswa Berprestasi ({{ cms_students|length }})
+                </h3>
+                <button onclick="document.getElementById('addStudentModal').classList.remove('hidden')" class="btn-space-gold px-3 py-1.5 rounded-xl text-xs font-bold font-heading flex items-center gap-1">
+                    <i class="bi bi-plus-lg"></i> Tambah Testimoni
+                </button>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {% for s in cms_students %}
+                <div class="glass-card p-4 border border-slate-800 space-y-3 flex flex-col justify-between">
+                    <div class="space-y-2">
+                        <div class="flex items-center gap-2.5">
+                            <img src="{{ url_for('static', filename=s.photo_path or 'uploads/landing/student_arya.png') }}" class="w-10 h-10 rounded-full object-cover border border-amber-400">
+                            <div>
+                                <h4 class="font-bold text-white text-xs font-heading">{{ s.name }}</h4>
+                                <span class="text-[10px] text-amber-400 font-mono font-semibold block">{{ s.achievement }}</span>
+                            </div>
+                        </div>
+                        <p class="text-[11px] text-slate-300 italic line-clamp-2">"{{ s.testimonial }}"</p>
+                    </div>
+                    <div class="flex items-center justify-between pt-2 border-t border-slate-800 text-xs">
+                        <button onclick="document.getElementById('editStudentModal_{{ s.id }}').classList.remove('hidden')" class="text-cyan-400 hover:underline text-[11px] font-mono font-bold flex items-center gap-1">
+                            <i class="bi bi-pencil-square"></i> Edit
+                        </button>
+                        <form action="{{ url_for('superuser.delete_cms_student', id=s.id) }}" method="POST" onsubmit="return confirm('Hapus testimoni {{ s.name }}?');">
+                            <button type="submit" class="text-rose-400 hover:text-rose-300 text-xs p-1">
+                                <i class="bi bi-trash"></i> Hapus
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Edit Student Modal -->
+                <div id="editStudentModal_{{ s.id }}" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center hidden p-4">
+                    <div class="glass-card max-w-md w-full p-5 border-amber-500/50 shadow-2xl">
+                        <div class="flex justify-between items-center mb-3">
+                            <h3 class="text-sm font-bold text-white font-heading">Edit Testimoni {{ s.name }}</h3>
+                            <button onclick="document.getElementById('editStudentModal_{{ s.id }}').classList.add('hidden')" class="text-slate-400 hover:text-white">
+                                <i class="bi bi-x-lg"></i>
+                            </button>
+                        </div>
+                        <form action="{{ url_for('superuser.edit_cms_student', id=s.id) }}" method="POST" enctype="multipart/form-data" class="space-y-3 text-xs">
+                            <div>
+                                <label class="block text-[10px] font-mono text-slate-300 uppercase mb-1">Nama Siswa</label>
+                                <input type="text" name="name" value="{{ s.name }}" required class="w-full px-3 py-1.5 bg-slate-950 border border-slate-700 rounded-lg text-slate-100">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-mono text-slate-300 uppercase mb-1">Prestasi / Juara</label>
+                                <input type="text" name="achievement" value="{{ s.achievement }}" required class="w-full px-3 py-1.5 bg-slate-950 border border-slate-700 rounded-lg text-slate-100">
+                            </div>
+                            <div class="grid grid-cols-2 gap-2">
+                                <div>
+                                    <label class="block text-[10px] font-mono text-slate-300 uppercase mb-1">Gelar Level</label>
+                                    <input type="text" name="level_title" value="{{ s.level_title }}" required class="w-full px-3 py-1.5 bg-slate-950 border border-slate-700 rounded-lg text-slate-100">
+                                </div>
+                                <div>
+                                    <label class="block text-[10px] font-mono text-slate-300 uppercase mb-1">Nama Kelas</label>
+                                    <input type="text" name="class_name" value="{{ s.class_name }}" required class="w-full px-3 py-1.5 bg-slate-950 border border-slate-700 rounded-lg text-slate-100">
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-mono text-slate-300 uppercase mb-1">Teks Testimoni</label>
+                                <textarea name="testimonial" rows="2" required class="w-full px-3 py-1.5 bg-slate-950 border border-slate-700 rounded-lg text-slate-100">{{ s.testimonial }}</textarea>
+                            </div>
+                            <div class="flex justify-end gap-2 pt-2">
+                                <button type="button" onclick="document.getElementById('editStudentModal_{{ s.id }}').classList.add('hidden')" class="px-3 py-1 rounded text-slate-400">Batal</button>
+                                <button type="submit" class="btn-space-gold px-4 py-1.5 rounded-lg font-bold">Simpan</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Add Student Modal -->
+        <div id="addStudentModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center hidden p-4">
+            <div class="glass-card max-w-md w-full p-5 border-amber-500/50 shadow-2xl">
+                <div class="flex justify-between items-center mb-3">
+                    <h3 class="text-sm font-bold text-white font-heading">Tambah Testimoni Siswa</h3>
+                    <button onclick="document.getElementById('addStudentModal').classList.add('hidden')" class="text-slate-400 hover:text-white">
+                        <i class="bi bi-x-lg"></i>
+                    </button>
+                </div>
+                <form action="{{ url_for('superuser.add_cms_student') }}" method="POST" enctype="multipart/form-data" class="space-y-3 text-xs">
+                    <div>
+                        <label class="block text-[10px] font-mono text-slate-300 uppercase mb-1">Nama Siswa</label>
+                        <input type="text" name="name" required placeholder="Rian Hidayat" class="w-full px-3 py-1.5 bg-slate-950 border border-slate-700 rounded-lg text-slate-100">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-mono text-slate-300 uppercase mb-1">Prestasi / Juara</label>
+                        <input type="text" name="achievement" required placeholder="🥇 Juara 2 KSN Fisika 2026" class="w-full px-3 py-1.5 bg-slate-950 border border-slate-700 rounded-lg text-slate-100">
+                    </div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="block text-[10px] font-mono text-slate-300 uppercase mb-1">Gelar Level</label>
+                            <input type="text" name="level_title" value="Level 5 Pilot" required class="w-full px-3 py-1.5 bg-slate-950 border border-slate-700 rounded-lg text-slate-100">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-mono text-slate-300 uppercase mb-1">Nama Kelas</label>
+                            <input type="text" name="class_name" value="Kelas ASTRA-9X" required class="w-full px-3 py-1.5 bg-slate-950 border border-slate-700 rounded-lg text-slate-100">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-mono text-slate-300 uppercase mb-1">Teks Testimoni</label>
+                        <textarea name="testimonial" rows="2" required placeholder="Tuliskan testimoni pengalaman belajar..." class="w-full px-3 py-1.5 bg-slate-950 border border-slate-700 rounded-lg text-slate-100"></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-mono text-slate-300 uppercase mb-1">Foto Profile (Opsional)</label>
+                        <input type="file" name="photo" accept="image/*" class="w-full text-[10px] text-slate-400">
+                    </div>
+                    <div class="flex justify-end gap-2 pt-2">
+                        <button type="button" onclick="document.getElementById('addStudentModal').classList.add('hidden')" class="px-3 py-1 rounded text-slate-400">Batal</button>
+                        <button type="submit" class="btn-space-gold px-4 py-1.5 rounded-lg font-bold">Tambahkan</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- 3. CMS FAQS -->
+        <div class="space-y-4 border-t border-slate-800 pt-6">
+            <div class="flex items-center justify-between">
+                <h3 class="text-base font-bold text-white font-heading flex items-center gap-2">
+                    <i class="bi bi-question-circle-fill text-cyan-400"></i> Kelola Pertanyaan Umum (FAQ) ({{ cms_faqs|length }})
+                </h3>
+                <button onclick="document.getElementById('addFaqModal').classList.remove('hidden')" class="btn-space-cyan px-3 py-1.5 rounded-xl text-xs font-bold font-heading flex items-center gap-1">
+                    <i class="bi bi-plus-lg"></i> Tambah FAQ
+                </button>
+            </div>
+
+            <div class="space-y-3">
+                {% for f in cms_faqs %}
+                <div class="glass-card p-4 border border-slate-800 flex items-start justify-between gap-4">
+                    <div class="space-y-1">
+                        <h4 class="font-bold text-white text-xs font-heading">Q: {{ f.question }}</h4>
+                        <p class="text-[11px] text-slate-400 font-mono">A: {{ f.answer }}</p>
+                    </div>
+                    <div class="flex items-center gap-2 shrink-0">
+                        <button onclick="document.getElementById('editFaqModal_{{ f.id }}').classList.remove('hidden')" class="text-cyan-400 hover:underline text-[11px] font-mono">
+                            <i class="bi bi-pencil-square"></i> Edit
+                        </button>
+                        <form action="{{ url_for('superuser.delete_cms_faq', id=f.id) }}" method="POST" onsubmit="return confirm('Hapus FAQ ini?');">
+                            <button type="submit" class="text-rose-400 hover:text-rose-300 text-xs p-1">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Edit FAQ Modal -->
+                <div id="editFaqModal_{{ f.id }}" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center hidden p-4">
+                    <div class="glass-card max-w-md w-full p-5 border-cyan-500/50 shadow-2xl">
+                        <div class="flex justify-between items-center mb-3">
+                            <h3 class="text-sm font-bold text-white font-heading">Edit Item FAQ</h3>
+                            <button onclick="document.getElementById('editFaqModal_{{ f.id }}').classList.add('hidden')" class="text-slate-400 hover:text-white">
+                                <i class="bi bi-x-lg"></i>
+                            </button>
+                        </div>
+                        <form action="{{ url_for('superuser.edit_cms_faq', id=f.id) }}" method="POST" class="space-y-3 text-xs">
+                            <div>
+                                <label class="block text-[10px] font-mono text-slate-300 uppercase mb-1">Pertanyaan (Q)</label>
+                                <input type="text" name="question" value="{{ f.question }}" required class="w-full px-3 py-1.5 bg-slate-950 border border-slate-700 rounded-lg text-slate-100">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-mono text-slate-300 uppercase mb-1">Jawaban (A)</label>
+                                <textarea name="answer" rows="3" required class="w-full px-3 py-1.5 bg-slate-950 border border-slate-700 rounded-lg text-slate-100">{{ f.answer }}</textarea>
+                            </div>
+                            <div class="flex justify-end gap-2 pt-2">
+                                <button type="button" onclick="document.getElementById('editFaqModal_{{ f.id }}').classList.add('hidden')" class="px-3 py-1 rounded text-slate-400">Batal</button>
+                                <button type="submit" class="btn-space-cyan px-4 py-1.5 rounded-lg font-bold">Simpan</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Add FAQ Modal -->
+        <div id="addFaqModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center hidden p-4">
+            <div class="glass-card max-w-md w-full p-5 border-cyan-500/50 shadow-2xl">
+                <div class="flex justify-between items-center mb-3">
+                    <h3 class="text-sm font-bold text-white font-heading">Tambah Item FAQ Baru</h3>
+                    <button onclick="document.getElementById('addFaqModal').classList.add('hidden')" class="text-slate-400 hover:text-white">
+                        <i class="bi bi-x-lg"></i>
+                    </button>
+                </div>
+                <form action="{{ url_for('superuser.add_cms_faq') }}" method="POST" class="space-y-3 text-xs">
+                    <div>
+                        <label class="block text-[10px] font-mono text-slate-300 uppercase mb-1">Pertanyaan (Q)</label>
+                        <input type="text" name="question" required placeholder="Apakah ada sertifikat kelulusan?" class="w-full px-3 py-1.5 bg-slate-950 border border-slate-700 rounded-lg text-slate-100">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-mono text-slate-300 uppercase mb-1">Jawaban (A)</label>
+                        <textarea name="answer" rows="3" required placeholder="Tuliskan jawaban penjelasan..." class="w-full px-3 py-1.5 bg-slate-950 border border-slate-700 rounded-lg text-slate-100"></textarea>
+                    </div>
+                    <div class="flex justify-end gap-2 pt-2">
+                        <button type="button" onclick="document.getElementById('addFaqModal').classList.add('hidden')" class="px-3 py-1 rounded text-slate-400">Batal</button>
+                        <button type="submit" class="btn-space-cyan px-4 py-1.5 rounded-lg font-bold">Tambahkan</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

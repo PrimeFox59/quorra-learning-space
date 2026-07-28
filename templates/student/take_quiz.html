@@ -1,0 +1,168 @@
+{% extends "base.html" %}
+
+{% block title %}Pengerjaan Misi: {{ quiz.title }} - Quorra Space{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto space-y-6">
+    <!-- Top Cockpit HUD Bar -->
+    <div class="glass-card p-4 sm:p-5 border-cyan-400/80 sticky top-16 md:top-20 z-40 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xl shadow-cyan-500/20 backdrop-blur-xl">
+        <div class="flex items-center gap-3">
+            <span class="w-9 h-9 rounded-xl bg-cyan-950 border border-cyan-500/40 text-cyan-300 font-black text-sm flex items-center justify-center font-mono shadow-md">
+                <i class="bi bi-crosshair text-lg"></i>
+            </span>
+            <div>
+                <div class="flex items-center gap-2">
+                    <span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase border
+                        {% if quiz.quiz_type == 'UJIAN' %} bg-rose-950 border-rose-500 text-rose-300
+                        {% elif quiz.quiz_type == 'QUEST' %} bg-purple-950 border-purple-500 text-purple-300
+                        {% else %} bg-cyan-950 border-cyan-500 text-cyan-300 {% endif %}">
+                        {{ quiz.quiz_type }}
+                    </span>
+                    <span class="text-[11px] font-mono text-slate-400">Percobaan #{{ attempt_number }}</span>
+                </div>
+                <h1 class="text-base sm:text-lg font-black text-white font-heading mt-0.5 truncate max-w-md">{{ quiz.title }}</h1>
+            </div>
+        </div>
+
+        <!-- Timer Counter HUD -->
+        <div class="flex items-center justify-between sm:justify-end gap-3 bg-slate-950/90 px-4 py-2 rounded-xl border border-cyan-500/40 shrink-0">
+            <div class="text-right">
+                <span class="block text-[9px] text-slate-400 font-mono uppercase tracking-wider">
+                    {% if quiz.time_limit_seconds > 0 %}SISA WAKTU{% else %}WAKTU TEMPUH{% endif %}
+                </span>
+                <span id="quizTimer" class="text-lg sm:text-2xl font-black font-mono text-cyan-400 tracking-widest leading-none">--:--</span>
+            </div>
+            <i class="bi bi-stopwatch text-xl sm:text-2xl text-cyan-400 animate-pulse"></i>
+        </div>
+    </div>
+
+    <!-- Quick Question Navigator Pills -->
+    <div class="glass-card p-4 border border-slate-800 flex items-center justify-between gap-3 overflow-x-auto">
+        <span class="text-xs font-mono text-slate-400 shrink-0 font-bold flex items-center gap-1.5">
+            <i class="bi bi-grid-3x3-gap-fill text-cyan-400"></i> NAVIGASI SOAL:
+        </span>
+        <div class="flex items-center gap-2 overflow-x-auto py-1">
+            {% for q in questions %}
+            <a href="#question_card_{{ q.id }}" id="nav_pill_{{ q.id }}" 
+               class="w-8 h-8 rounded-lg bg-slate-900 border border-slate-700/80 text-slate-400 font-mono font-bold text-xs flex items-center justify-center hover:border-cyan-400 hover:text-white transition-all shrink-0">
+                {{ loop.index }}
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Quiz Questions Form -->
+    <form id="quizForm" action="{{ url_for('student.submit_quiz', quiz_id=quiz.id) }}" method="POST" class="space-y-6" onsubmit="return confirmSubmit();">
+        <input type="hidden" name="time_taken_seconds" id="timeTakenSeconds" value="0">
+
+        {% for q in questions %}
+        <div id="question_card_{{ q.id }}" class="glass-card p-6 md:p-8 space-y-4 relative border border-slate-800 scroll-mt-36">
+            <div class="flex items-center justify-between gap-4 border-b border-slate-800/80 pb-3">
+                <div class="flex items-center gap-2.5">
+                    <span class="w-8 h-8 rounded-xl bg-cyan-950 border border-cyan-500 text-cyan-300 font-bold text-xs flex items-center justify-center font-mono shadow-md shadow-cyan-500/20">
+                        {{ loop.index }}
+                    </span>
+                    <span class="text-xs text-amber-400 font-mono font-bold flex items-center gap-1">
+                        <i class="bi bi-star-fill text-amber-400"></i> {{ q.points }} Poin
+                    </span>
+                </div>
+                <span class="text-[11px] font-mono text-slate-500">Soal {{ loop.index }} dari {{ questions|length }}</span>
+            </div>
+
+            <!-- Question Text -->
+            <p class="text-base md:text-lg font-bold text-white font-heading leading-relaxed whitespace-pre-line">
+                {{ q.question_text }}
+            </p>
+
+            <!-- Question Image (If Uploaded) -->
+            {% if q.image_path %}
+            <div class="my-3">
+                <img src="{{ url_for('static', filename=q.image_path) }}" alt="Lampiran Soal" class="max-h-64 rounded-xl border border-cyan-500/40 object-cover shadow-lg">
+            </div>
+            {% endif %}
+
+            <!-- Options Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2">
+                {% for opt in q.options.all() %}
+                <div>
+                    <input type="radio" name="question_{{ q.id }}" value="{{ opt.id }}" id="opt_{{ opt.id }}" 
+                           class="hidden quiz-option-radio" onchange="markAnswered({{ q.id }})">
+                    <label for="opt_{{ opt.id }}" class="quiz-option-label group flex flex-col items-start gap-2">
+                        <div class="flex items-center gap-3 w-full">
+                            <span class="w-8 h-8 rounded-lg bg-slate-900 border border-slate-700 font-mono font-bold text-cyan-400 text-xs flex items-center justify-center shrink-0 group-hover:border-cyan-400 group-hover:bg-cyan-950/40 transition-colors">
+                                {{ opt.option_letter }}
+                            </span>
+                            <span class="text-xs sm:text-sm font-medium text-slate-200 group-hover:text-white flex-1 leading-snug">{{ opt.option_text }}</span>
+                        </div>
+                        {% if opt.image_path %}
+                        <div class="pl-11 w-full">
+                            <img src="{{ url_for('static', filename=opt.image_path) }}" alt="Pilihan {{ opt.option_letter }}" class="max-h-36 rounded-lg border border-slate-700 object-cover">
+                        </div>
+                        {% endif %}
+                    </label>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endfor %}
+
+        <!-- Submit Button Card -->
+        <div class="glass-card p-5 md:p-6 flex flex-col sm:flex-row items-center justify-between gap-4 border border-slate-800">
+            <div class="text-xs text-slate-400 font-mono flex items-center gap-2">
+                <i class="bi bi-shield-check text-cyan-400 text-xl shrink-0"></i>
+                <span>Pastikan semua pertanyaan telah dijawab sebelum mengirimkan laporan evaluasi.</span>
+            </div>
+            <button type="submit" class="w-full sm:w-auto btn-space-cyan px-8 py-3 rounded-xl font-bold text-xs font-heading flex items-center justify-center gap-2 shadow-lg">
+                <i class="bi bi-send-fill text-sm"></i> Kirimkan Jawaban Misi
+            </button>
+        </div>
+    </form>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const timeLimitSeconds = {{ quiz.time_limit_seconds }};
+    const timerDisplay = document.getElementById('quizTimer');
+    const timeTakenInput = document.getElementById('timeTakenSeconds');
+    const quizForm = document.getElementById('quizForm');
+
+    let secondsPassed = 0;
+    let secondsRemaining = timeLimitSeconds;
+
+    const interval = setInterval(() => {
+        secondsPassed++;
+        timeTakenInput.value = secondsPassed;
+
+        if (timeLimitSeconds > 0) {
+            secondsRemaining--;
+            if (secondsRemaining <= 0) {
+                clearInterval(interval);
+                timerDisplay.innerText = "00:00";
+                alert("Waktu pengerjaan misi telah habis! Jawaban Anda dikirimkan secara otomatis.");
+                quizForm.submit();
+                return;
+            }
+
+            const mins = Math.floor(secondsRemaining / 60);
+            const secs = secondsRemaining % 60;
+            timerDisplay.innerText = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+        } else {
+            const mins = Math.floor(secondsPassed / 60);
+            const secs = secondsPassed % 60;
+            timerDisplay.innerText = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+        }
+    }, 1000);
+});
+
+function markAnswered(qId) {
+    const pill = document.getElementById(`nav_pill_${qId}`);
+    if (pill) {
+        pill.className = "w-8 h-8 rounded-lg bg-emerald-950 border border-emerald-500 text-emerald-300 font-mono font-bold text-xs flex items-center justify-center shadow-sm shrink-0";
+    }
+}
+
+function confirmSubmit() {
+    return confirm("Apakah Anda yakin ingin menyelesaikan kuis dan mengirimkan jawaban?");
+}
+</script>
+{% endblock %}

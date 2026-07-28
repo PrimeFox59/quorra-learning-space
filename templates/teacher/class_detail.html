@@ -1,0 +1,155 @@
+{% extends "base.html" %}
+
+{% block title %}Kelas {{ class_obj.name }} - Quorra Space{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Breadcrumb & Back -->
+    <div class="flex items-center gap-2 text-xs font-mono text-slate-400">
+        <a href="{{ url_for('teacher.dashboard') }}" class="hover:text-cyan-400">Dashboard Guru</a>
+        <span>/</span>
+        <span class="text-cyan-400 font-bold">{{ class_obj.name }}</span>
+    </div>
+
+    <!-- Class Header Banner -->
+    <div class="glass-card p-6 md:p-8 flex flex-col md:flex-row md:items-center justify-between gap-6 border-l-4 border-cyan-400 relative overflow-hidden">
+        <div class="absolute -right-10 -bottom-10 w-48 h-48 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="relative z-10">
+            <div class="flex items-center gap-2 mb-1.5">
+                <span class="px-2 py-0.5 rounded bg-cyan-950 border border-cyan-500/40 text-[10px] font-mono text-cyan-300 font-bold uppercase">{{ class_obj.subject or 'Mata Pelajaran Umum' }}</span>
+                <span class="text-xs text-slate-500">•</span>
+                <span class="text-xs text-slate-400 font-mono">Workspace: {{ class_obj.workspace.name }}</span>
+            </div>
+            <h1 class="text-2xl md:text-3xl font-black text-white font-heading">{{ class_obj.name }}</h1>
+            <p class="text-slate-400 text-xs sm:text-sm mt-1 max-w-xl">
+                Stasiun Kelas Pembelajaran & Pusat Manajemen Evaluasi.
+            </p>
+        </div>
+
+        <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 relative z-10">
+            <!-- Space Code Badge -->
+            <div class="p-3 bg-slate-950/90 border border-cyan-500/40 rounded-xl text-center shadow-lg shadow-cyan-500/10">
+                <span class="block text-[9px] text-slate-400 font-mono uppercase">KODE JOIN MURID</span>
+                <div class="flex items-center justify-center gap-2 mt-0.5">
+                    <span class="text-xl sm:text-2xl font-black text-cyan-400 font-mono tracking-widest">{{ class_obj.code }}</span>
+                    <button onclick="navigator.clipboard.writeText('{{ class_obj.code }}'); alert('Kode kelas tersalin: {{ class_obj.code }}');" 
+                            class="text-slate-400 hover:text-cyan-400 p-1" title="Salin Kode">
+                        <i class="bi bi-copy text-xs"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="flex flex-col gap-2">
+                <a href="{{ url_for('teacher.create_quiz', class_id=class_obj.id) }}" class="btn-space-cyan px-4 py-2.5 rounded-xl text-xs font-bold font-heading flex items-center justify-center gap-2 shadow-md">
+                    <i class="bi bi-patch-plus-fill text-sm"></i> Buat Quiz / Quest
+                </a>
+                <a href="{{ url_for('teacher.class_analytics', class_id=class_obj.id) }}" class="btn-space-purple px-4 py-2.5 rounded-xl text-xs font-bold font-heading flex items-center justify-center gap-2 shadow-md">
+                    <i class="bi bi-graph-up-arrow text-sm"></i> Monitoring & Nilai
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Active Quizzes / Quests Grid -->
+    <div class="space-y-4">
+        <div class="flex items-center justify-between">
+            <h2 class="text-lg font-bold text-white font-heading flex items-center gap-2">
+                <i class="bi bi-joystick text-cyan-400"></i> Daftar Quest, Kuis & Ujian Kelas ({{ quizzes|length }})
+            </h2>
+        </div>
+
+        {% if not quizzes %}
+        <div class="glass-card p-10 text-center text-slate-400 border border-slate-800">
+            <i class="bi bi-journal-x text-4xl text-slate-600 block mb-2"></i>
+            <p class="text-sm font-semibold">Belum ada Kuis atau Quest di kelas ini.</p>
+            <p class="text-xs text-slate-500 mt-1">Klik tombol "Buat Quiz / Quest" di atas untuk menambahkan evaluasi pembelajaran.</p>
+        </div>
+        {% else %}
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            {% for q in quizzes %}
+            <div class="glass-card p-5 flex flex-col justify-between border border-slate-800 hover:border-cyan-500/40 transition-all">
+                <div>
+                    <div class="flex items-center justify-between gap-2 mb-2 pb-2 border-b border-slate-800/80">
+                        <span class="px-2.5 py-0.5 rounded text-[10px] font-mono font-bold uppercase border
+                            {% if q.quiz_type == 'UJIAN' %} bg-rose-950/90 border-rose-500 text-rose-300
+                            {% elif q.quiz_type == 'QUEST' %} bg-purple-950/90 border-purple-500 text-purple-300
+                            {% else %} bg-cyan-950/90 border-cyan-500 text-cyan-300 {% endif %}">
+                            {{ q.quiz_type }}
+                        </span>
+                        <div class="flex items-center gap-2">
+                            <span class="text-xs text-amber-400 font-mono font-bold">+{{ q.exp_reward }} EXP</span>
+                            <form action="{{ url_for('teacher.delete_quiz', quiz_id=q.id) }}" method="POST" onsubmit="return confirm('Hapus kuis {{ q.title }} beserta seluruh soal dan nilainya?');">
+                                <button type="submit" class="text-slate-500 hover:text-rose-400 p-1 text-xs transition-colors">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <h3 class="text-base font-bold text-white font-heading mb-1">{{ q.title }}</h3>
+                    <p class="text-xs text-slate-400 mb-3 line-clamp-2">{{ q.description or 'Tidak ada deskripsi.' }}</p>
+
+                    <!-- Rules Badges -->
+                    <div class="grid grid-cols-3 gap-2 text-[10px] font-mono text-slate-300 bg-slate-950/80 p-2.5 rounded-xl mb-3 border border-slate-800">
+                        <div>
+                            <span class="block text-slate-500">Soal</span>
+                            <span class="font-bold text-white">{{ q.questions.count() }} Soal</span>
+                        </div>
+                        <div>
+                            <span class="block text-slate-500">Waktu Limit</span>
+                            <span class="font-bold text-cyan-400">
+                                {% if q.time_limit_seconds > 0 %}
+                                    {{ q.time_limit_seconds // 60 }} Min
+                                {% else %}
+                                    No Limit
+                                {% endif %}
+                            </span>
+                        </div>
+                        <div>
+                            <span class="block text-slate-500">Percobaan</span>
+                            <span class="font-bold text-purple-400">
+                                {% if q.max_attempts > 0 %}
+                                    {{ q.max_attempts }}x
+                                {% else %}
+                                    ∞
+                                {% endif %}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pt-2.5 border-t border-slate-800/80 flex items-center justify-between">
+                    <span class="text-[10px] text-slate-500 font-mono">Dibuat {{ q.created_at.strftime('%d %b %Y') }}</span>
+                    <a href="{{ url_for('teacher.quiz_builder', quiz_id=q.id) }}" class="btn-space-cyan px-3.5 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 shadow-sm">
+                        <i class="bi bi-gear-fill"></i> Kelola Soal (ABCD)
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Enrolled Students Roster -->
+    <div class="glass-card p-5 border border-slate-800">
+        <h2 class="text-base font-bold text-white font-heading mb-3 flex items-center gap-2">
+            <i class="bi bi-people-fill text-amber-400"></i> Astronot Terdaftar di Kelas Ini ({{ enrollments|length }})
+        </h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+            {% for e in enrollments %}
+            <div class="p-3 rounded-xl bg-slate-900/60 border border-slate-800 flex items-center gap-3">
+                <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-amber-500 to-amber-700 font-black text-slate-950 flex items-center justify-center text-xs font-mono shrink-0 shadow-md">
+                    L{{ e.student.level }}
+                </div>
+                <div class="truncate">
+                    <div class="font-bold text-xs text-slate-200 font-heading truncate">{{ e.student.username }}</div>
+                    <div class="text-[10px] text-sky-400 font-mono truncate">{{ e.student.rank_title }} • {{ e.student.exp }} EXP</div>
+                </div>
+            </div>
+            {% else %}
+            <p class="text-xs text-slate-500 font-mono col-span-3">Belum ada murid yang bergabung dengan kode {{ class_obj.code }}.</p>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

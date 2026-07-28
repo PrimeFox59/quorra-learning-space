@@ -1,0 +1,430 @@
+{% extends "base.html" %}
+
+{% block title %}Quorra Space - Stasiun Bimbingan Belajar Sains & Teknologi Antar Galaksi{% endblock %}
+
+{% block content %}
+<div class="space-y-20 py-4 max-w-7xl mx-auto">
+
+    <!-- 1. HERO SECTION -->
+    <section class="relative rounded-3xl overflow-hidden glass-card p-6 sm:p-10 md:p-14 border border-cyan-500/30">
+        <!-- Ambient background glows -->
+        <div class="absolute -top-32 -left-32 w-[30rem] h-[30rem] bg-cyan-500/10 rounded-full blur-[120px] pointer-events-none"></div>
+        <div class="absolute -bottom-32 -right-32 w-[30rem] h-[30rem] bg-purple-500/10 rounded-full blur-[120px] pointer-events-none"></div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center relative z-10">
+            <!-- Hero Left Content -->
+            <div class="lg:col-span-7 space-y-6 text-left">
+                <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-900/90 border border-cyan-500/40 text-cyan-300 text-xs font-mono font-semibold shadow-inner">
+                    <span class="w-2 h-2 rounded-full bg-cyan-400 animate-ping"></span>
+                    <i class="bi bi-rocket-takeoff text-cyan-400"></i> Lembaga Bimbingan Belajar Sains & AI Terdepan
+                </div>
+
+                <h1 class="text-3xl sm:text-5xl font-black text-white font-heading leading-[1.15] tracking-tight">
+                    Bangkitkan Potensi Sains & Teknologi di <span class="bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 via-sky-300 to-purple-400">QUORRA SPACE</span>
+                </h1>
+
+                <p class="text-sm sm:text-base text-slate-300 leading-relaxed max-w-2xl font-normal">
+                    Stasiun pembelajaran interaktif berbasis gamifikasi. Kuasai Astrofisika, Fisika Kuantum, Robotika & Pemrograman dengan dukungan **Google Gemini AI Tutor** serta mentor profesional.
+                </p>
+
+                <!-- Action CTA Buttons -->
+                <div class="flex flex-wrap items-center gap-4 pt-2">
+                    <a href="{{ url_for('auth.login') }}" class="btn-space-cyan px-7 py-3.5 rounded-xl font-heading font-bold text-xs sm:text-sm flex items-center gap-2.5 shadow-lg shadow-cyan-500/20 hover:scale-[1.02] active:scale-[0.98] transition-all">
+                        <i class="bi bi-box-arrow-in-right text-base"></i> Login Stasiun
+                    </a>
+                    <a href="{{ url_for('auth.login') }}" class="btn-space-purple px-7 py-3.5 rounded-xl font-heading font-bold text-xs sm:text-sm flex items-center gap-2.5 shadow-lg shadow-purple-500/20 hover:scale-[1.02] active:scale-[0.98] transition-all">
+                        <i class="bi bi-person-plus-fill text-base"></i> Daftar Astronot Baru
+                    </a>
+                </div>
+
+                <!-- Live Metrics Bar -->
+                <div class="grid grid-cols-3 gap-4 pt-6 border-t border-slate-800/80 font-mono text-xs">
+                    <div class="space-y-0.5">
+                        <span class="block text-2xl font-black text-cyan-400 font-heading">99.8%</span>
+                        <span class="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">Tingkat Kelulusan</span>
+                    </div>
+                    <div class="space-y-0.5">
+                        <span class="block text-2xl font-black text-amber-400 font-heading">1,500+</span>
+                        <span class="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">Astronot Siswa</span>
+                    </div>
+                    <div class="space-y-0.5">
+                        <span class="block text-2xl font-black text-purple-400 font-heading">24/7 AI</span>
+                        <span class="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">Generator Kuis Gemini</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Hero Right Visual Banner -->
+            <div class="lg:col-span-5 relative">
+                <div class="relative rounded-2xl overflow-hidden border border-slate-700/80 shadow-2xl shadow-cyan-500/10 group">
+                    <img src="{{ url_for('static', filename='uploads/landing/hero_banner.png') }}" alt="Quorra Space Learning Station" class="w-full h-auto object-cover transform group-hover:scale-105 transition-transform duration-700">
+                    <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent"></div>
+                    
+                    <div class="absolute bottom-4 left-4 right-4 p-3 rounded-xl bg-slate-950/90 backdrop-blur-md border border-cyan-500/40 text-[11px] font-mono text-cyan-300 flex items-center justify-between">
+                        <span class="flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                            AI Interactive Hologram Active
+                        </span>
+                        <span class="px-2 py-0.5 rounded bg-cyan-950 border border-cyan-500/50 text-[9px] font-bold">LIVE DEMO</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- 2. CORE ADVANTAGES SECTION -->
+    <section class="space-y-10">
+        <div class="text-center max-w-3xl mx-auto space-y-2">
+            <span class="text-xs font-mono text-cyan-400 font-bold uppercase tracking-widest flex items-center justify-center gap-1.5">
+                <i class="bi bi-cpu"></i> Keunggulan Utama Stasiun
+            </span>
+            <h2 class="text-2xl sm:text-4xl font-black text-white font-heading">
+                Pendekatan Belajar Sains yang Berbeda
+            </h2>
+            <p class="text-xs sm:text-sm text-slate-400 leading-relaxed">
+                Kami mengubah cara belajar yang kaku menjadi petualangan eksplorasi dengan teknologi AI dan gamifikasi progresif.
+            </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <!-- Advantage Card 1 -->
+            <div class="glass-card p-6 border border-slate-800/80 hover:border-cyan-500/60 transition-all space-y-4 group">
+                <div class="w-12 h-12 rounded-2xl bg-cyan-950 border border-cyan-500/40 text-cyan-400 flex items-center justify-center text-2xl group-hover:scale-110 transition-transform shadow-md">
+                    <i class="bi bi-robot"></i>
+                </div>
+                <h3 class="text-lg font-bold text-white font-heading">AI Quiz Generator</h3>
+                <p class="text-xs text-slate-400 leading-relaxed">
+                    Ditenagai oleh Google Gemini AI. Cukup tempel materi pembelajaran, AI akan menyusun soal kuis interaktif secara otomatis.
+                </p>
+            </div>
+
+            <!-- Advantage Card 2 -->
+            <div class="glass-card p-6 border border-slate-800/80 hover:border-amber-500/60 transition-all space-y-4 group">
+                <div class="w-12 h-12 rounded-2xl bg-amber-950 border border-amber-500/40 text-amber-400 flex items-center justify-center text-2xl group-hover:scale-110 transition-transform shadow-md">
+                    <i class="bi bi-controller"></i>
+                </div>
+                <h3 class="text-lg font-bold text-white font-heading">Gamifikasi Level & EXP</h3>
+                <p class="text-xs text-slate-400 leading-relaxed">
+                    Selesaikan kuis untuk mendapatkan poin EXP, naik jenjang dari Cadet hingga Galactic Admiral, dan koleksi Badge Prestasi.
+                </p>
+            </div>
+
+            <!-- Advantage Card 3 -->
+            <div class="glass-card p-6 border border-slate-800/80 hover:border-purple-500/60 transition-all space-y-4 group">
+                <div class="w-12 h-12 rounded-2xl bg-purple-950 border border-purple-500/40 text-purple-400 flex items-center justify-center text-2xl group-hover:scale-110 transition-transform shadow-md">
+                    <i class="bi bi-graph-up-arrow"></i>
+                </div>
+                <h3 class="text-lg font-bold text-white font-heading">Analisis Grafik Apex</h3>
+                <p class="text-xs text-slate-400 leading-relaxed">
+                    Visualisasi perkembangan nilai melalui grafik tren interaktif ApexCharts, evaluasi tingkat kelulusan, serta statistik akurasi.
+                </p>
+            </div>
+
+            <!-- Advantage Card 4 -->
+            <div class="glass-card p-6 border border-slate-800/80 hover:border-emerald-500/60 transition-all space-y-4 group">
+                <div class="w-12 h-12 rounded-2xl bg-emerald-950 border border-emerald-500/40 text-emerald-400 flex items-center justify-center text-2xl group-hover:scale-110 transition-transform shadow-md">
+                    <i class="bi bi-trophy-fill"></i>
+                </div>
+                <h3 class="text-lg font-bold text-white font-heading">Leaderboard Realtime</h3>
+                <p class="text-xs text-slate-400 leading-relaxed">
+                    Papan peringkat transparan antar astronot siswa dengan podium khusus Juara 1, 2, dan 3 dalam setiap kelas.
+                </p>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- 3. AUTOPLAY CAROUSEL: GURU & MENTOR (DYNAMIC FROM CMS DB) -->
+    <section class="space-y-6">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+                <span class="text-xs font-mono text-purple-400 font-bold uppercase tracking-widest flex items-center gap-1.5">
+                    <i class="bi bi-award-fill"></i> Tim Pengajar Profesional
+                </span>
+                <h2 class="text-2xl sm:text-3xl font-black text-white font-heading mt-0.5">
+                    Mentor Stasiun Antar Galaksi
+                </h2>
+            </div>
+
+            <!-- Controls & Progress Dots -->
+            <div class="flex items-center gap-3">
+                <div id="teacherDots" class="flex items-center gap-1.5"></div>
+                <div class="flex items-center gap-1.5 ml-2">
+                    <button onclick="manualScroll('teacherCarousel', -1)" class="w-8 h-8 rounded-lg bg-slate-900 border border-slate-700 text-slate-300 hover:text-white hover:border-purple-400 flex items-center justify-center transition-colors">
+                        <i class="bi bi-chevron-left text-xs"></i>
+                    </button>
+                    <button onclick="manualScroll('teacherCarousel', 1)" class="w-8 h-8 rounded-lg bg-slate-900 border border-slate-700 text-slate-300 hover:text-white hover:border-purple-400 flex items-center justify-center transition-colors">
+                        <i class="bi bi-chevron-right text-xs"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Teacher Carousel Track -->
+        <div id="teacherCarousel" class="flex items-stretch gap-6 overflow-x-auto scroll-smooth py-3 px-1 no-scrollbar snap-x snap-mandatory">
+            {% for t in teachers %}
+            <div class="carousel-item glass-card p-5 w-[300px] sm:w-[360px] lg:w-[380px] shrink-0 border border-slate-800 space-y-4 flex flex-col justify-between hover:border-purple-500/60 transition-all rounded-2xl snap-start">
+                <div class="space-y-3.5">
+                    <div class="relative rounded-xl overflow-hidden border border-purple-500/30 bg-slate-950 aspect-[4/3]">
+                        <img src="{{ url_for('static', filename=t.photo_path or 'uploads/landing/teacher_alistair.png') }}" alt="{{ t.name }}" class="w-full h-full object-cover object-top">
+                        <span class="absolute bottom-2.5 left-2.5 px-2.5 py-1 rounded-lg bg-slate-950/90 border border-purple-500/40 text-[10px] font-mono text-purple-300 font-bold backdrop-blur-md">
+                            {{ t.experience }}
+                        </span>
+                    </div>
+                    <div>
+                        <h3 class="text-base font-bold text-white font-heading">{{ t.name }}</h3>
+                        <span class="text-xs text-purple-400 font-mono font-bold block mt-0.5">{{ t.title }}</span>
+                        <p class="text-xs text-slate-400 mt-2 leading-relaxed font-normal">
+                            {{ t.description }}
+                        </p>
+                    </div>
+                </div>
+                <div class="pt-3 border-t border-slate-800/80 text-[11px] text-slate-400 font-mono flex items-center justify-between">
+                    <span class="flex items-center gap-1 font-bold text-amber-400"><i class="bi bi-star-fill"></i> {{ t.rating }}</span>
+                    <span class="text-purple-300 font-semibold">{{ t.total_students }}</span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+
+
+    <!-- 4. AUTOPLAY CAROUSEL: MURID BERPRESTASI & TESTIMONI (DYNAMIC FROM CMS DB) -->
+    <section class="space-y-6">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+                <span class="text-xs font-mono text-amber-400 font-bold uppercase tracking-widest flex items-center gap-1.5">
+                    <i class="bi bi-trophy-fill"></i> Hall of Fame Astronot
+                </span>
+                <h2 class="text-2xl sm:text-3xl font-black text-white font-heading mt-0.5">
+                    Kisah Sukses Siswa Quorra
+                </h2>
+            </div>
+
+            <!-- Controls & Progress Dots -->
+            <div class="flex items-center gap-3">
+                <div id="studentDots" class="flex items-center gap-1.5"></div>
+                <div class="flex items-center gap-1.5 ml-2">
+                    <button onclick="manualScroll('studentCarousel', -1)" class="w-8 h-8 rounded-lg bg-slate-900 border border-slate-700 text-slate-300 hover:text-white hover:border-amber-400 flex items-center justify-center transition-colors">
+                        <i class="bi bi-chevron-left text-xs"></i>
+                    </button>
+                    <button onclick="manualScroll('studentCarousel', 1)" class="w-8 h-8 rounded-lg bg-slate-900 border border-slate-700 text-slate-300 hover:text-white hover:border-amber-400 flex items-center justify-center transition-colors">
+                        <i class="bi bi-chevron-right text-xs"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Student Autoplay Carousel Track -->
+        <div id="studentCarousel" class="flex items-stretch gap-6 overflow-x-auto scroll-smooth py-3 px-1 no-scrollbar snap-x snap-mandatory">
+            {% for s in students %}
+            <div class="carousel-item glass-card p-5 w-[300px] sm:w-[360px] lg:w-[380px] shrink-0 border border-amber-500/40 space-y-4 flex flex-col justify-between rounded-2xl snap-start hover:border-amber-400 transition-all">
+                <div class="space-y-3.5">
+                    <div class="flex items-center gap-3">
+                        <img src="{{ url_for('static', filename=s.photo_path or 'uploads/landing/student_arya.png') }}" alt="{{ s.name }}" class="w-14 h-14 rounded-full border-2 border-amber-400 object-cover object-top shrink-0 shadow-md">
+                        <div>
+                            <h3 class="text-base font-bold text-white font-heading">{{ s.name }}</h3>
+                            <span class="text-[11px] text-amber-400 font-mono font-bold block">{{ s.achievement }}</span>
+                            <span class="text-[10px] text-slate-400 font-mono">{{ s.level_title }}</span>
+                        </div>
+                    </div>
+                    <p class="text-xs text-slate-300 italic leading-relaxed font-normal">
+                        "{{ s.testimonial }}"
+                    </p>
+                </div>
+                <div class="pt-3 border-t border-slate-800/80 text-[10px] font-mono text-cyan-400 flex items-center justify-between">
+                    <span><i class="bi bi-patch-check-fill mr-1"></i> {{ s.class_name }}</span>
+                    <span class="text-amber-400 font-bold">{{ s.exp_points }}</span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+
+
+    <!-- 5. PROMOTIONAL JOIN CTA SECTION -->
+    <section class="glass-card p-8 sm:p-12 md:p-14 border border-cyan-400/60 relative overflow-hidden text-center space-y-6 shadow-2xl shadow-cyan-500/10">
+        <div class="absolute -top-24 -left-24 w-96 h-96 bg-cyan-500/15 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="absolute -bottom-24 -right-24 w-96 h-96 bg-purple-500/15 rounded-full blur-3xl pointer-events-none"></div>
+
+        <div class="relative z-10 max-w-2xl mx-auto space-y-4">
+            <span class="px-4 py-1.5 rounded-full bg-amber-950/90 border border-amber-500/50 text-amber-300 text-xs font-mono font-bold shadow-md inline-block">
+                🎁 PROMO SPECIAL PENDAFTARAN ASTRONOT BARU
+            </span>
+            <h2 class="text-3xl sm:text-4xl font-black text-white font-heading leading-tight">
+                Siap Menjadi Cadet Astronot Berikutnya?
+            </h2>
+            <p class="text-xs sm:text-sm text-slate-300 leading-relaxed font-normal">
+                Daftar sekarang dan langsung dapatkan **+100 EXP Welcome Bonus**, akses gratis ke kuis AI Gemini, serta bimbingan intensif dari mentor profesional!
+            </p>
+            <div class="flex flex-wrap items-center justify-center gap-4 pt-3">
+                <a href="{{ url_for('auth.login') }}" class="btn-space-cyan px-8 py-3.5 rounded-xl font-heading font-bold text-xs sm:text-sm flex items-center gap-2 shadow-xl shadow-cyan-500/20 hover:scale-[1.02] transition-all">
+                    <i class="bi bi-rocket-takeoff-fill text-base"></i> Gabung Sekarang (Register)
+                </a>
+                <a href="{{ url_for('auth.login') }}" class="btn-space-purple px-8 py-3.5 rounded-xl font-heading font-bold text-xs sm:text-sm flex items-center gap-2 shadow-xl shadow-purple-500/20 hover:scale-[1.02] transition-all">
+                    <i class="bi bi-shield-lock-fill text-base"></i> Login Stasiun
+                </a>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- 6. FAQ & CONTACT SECTION (DYNAMIC FROM CMS DB) -->
+    <section class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        <!-- FAQ Accordion (Left 6 cols) -->
+        <div class="lg:col-span-6 space-y-4">
+            <div>
+                <span class="text-xs font-mono text-cyan-400 font-bold uppercase tracking-widest flex items-center gap-1.5 mb-1">
+                    <i class="bi bi-question-circle"></i> Pertanyaan Umum (FAQ)
+                </span>
+                <h2 class="text-2xl font-black text-white font-heading">Informasi Pendaftaran & Sistem</h2>
+            </div>
+
+            <div class="space-y-3 font-sans">
+                {% for f in faqs %}
+                <details class="glass-card border border-slate-800 rounded-2xl p-4 group cursor-pointer">
+                    <summary class="font-bold text-white text-xs sm:text-sm font-heading flex items-center justify-between">
+                        <span>{{ f.question }}</span>
+                        <i class="bi bi-chevron-down text-slate-400 group-open:rotate-180 transition-transform"></i>
+                    </summary>
+                    <p class="text-xs text-slate-400 mt-2.5 leading-relaxed font-mono">
+                        {{ f.answer }}
+                    </p>
+                </details>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Contact Box & Quick Form (Right 6 cols) -->
+        <div class="lg:col-span-6 space-y-4">
+            <div>
+                <span class="text-xs font-mono text-purple-400 font-bold uppercase tracking-widest flex items-center gap-1.5 mb-1">
+                    <i class="bi bi-envelope"></i> Layanan Konsultasi
+                </span>
+                <h2 class="text-2xl font-black text-white font-heading">Hubungi Tim Stasiun</h2>
+            </div>
+
+            <div class="glass-card p-6 border border-slate-800 space-y-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs font-mono">
+                    <div class="p-3 rounded-xl bg-slate-950 border border-slate-800 flex items-center gap-3">
+                        <i class="bi bi-whatsapp text-emerald-400 text-xl shrink-0"></i>
+                        <div>
+                            <span class="text-[9px] text-slate-500 block">WHATSAPP HOTLINE</span>
+                            <a href="https://wa.me/6281234567890" target="_blank" class="text-emerald-300 font-bold hover:underline">+62 812-3456-7890</a>
+                        </div>
+                    </div>
+                    <div class="p-3 rounded-xl bg-slate-950 border border-slate-800 flex items-center gap-3">
+                        <i class="bi bi-envelope text-cyan-400 text-xl shrink-0"></i>
+                        <div>
+                            <span class="text-[9px] text-slate-500 block">EMAIL SUPPORT</span>
+                            <a href="mailto:support@primeprojectx.net" class="text-cyan-300 font-bold hover:underline truncate block">support@primeprojectx.net</a>
+                        </div>
+                    </div>
+                </div>
+
+                <form onsubmit="event.preventDefault(); alert('Pesan Anda telah diterima oleh Stasiun Quorra. Tim kami akan segera menghubungi Anda!');" class="space-y-3 pt-1">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <input type="text" required placeholder="Nama Lengkap" class="w-full px-3.5 py-2 bg-slate-950 border border-slate-700/80 rounded-xl text-xs text-slate-100 placeholder-slate-600 focus:outline-none focus:border-cyan-400">
+                        <input type="text" required placeholder="Nomor WhatsApp" class="w-full px-3.5 py-2 bg-slate-950 border border-slate-700/80 rounded-xl text-xs text-slate-100 placeholder-slate-600 focus:outline-none focus:border-cyan-400">
+                    </div>
+                    <textarea rows="2" required placeholder="Tuliskan pertanyaan atau informasi program..." class="w-full px-3.5 py-2 bg-slate-950 border border-slate-700/80 rounded-xl text-xs text-slate-100 placeholder-slate-600 focus:outline-none focus:border-cyan-400"></textarea>
+                    <button type="submit" class="w-full btn-space-cyan py-2.5 rounded-xl font-bold text-xs font-heading flex items-center justify-center gap-2">
+                        <i class="bi bi-send"></i> Kirim Pesan Konsultasi
+                    </button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+</div>
+
+<!-- AUTOPLAY CAROUSEL SCRIPT WITH PAUSE ON HOVER -->
+<script>
+function initAutoplayCarousel(carouselId, dotsId, intervalMs) {
+    const carousel = document.getElementById(carouselId);
+    const dotsContainer = document.getElementById(dotsId);
+    if (!carousel) return;
+
+    const items = carousel.querySelectorAll('.carousel-item');
+    if (items.length === 0) return;
+
+    let currentIndex = 0;
+    let isHovered = false;
+
+    // Create Dot Indicators
+    if (dotsContainer) {
+        dotsContainer.innerHTML = '';
+        items.forEach((_, idx) => {
+            const dot = document.createElement('button');
+            dot.className = `w-2.5 h-2.5 rounded-full transition-all duration-300 ${idx === 0 ? 'bg-cyan-400 w-5' : 'bg-slate-700 hover:bg-slate-500'}`;
+            dot.onclick = () => scrollToIndex(idx);
+            dotsContainer.appendChild(dot);
+        });
+    }
+
+    function updateDots() {
+        if (!dotsContainer) return;
+        const dots = dotsContainer.querySelectorAll('button');
+        dots.forEach((dot, idx) => {
+            if (idx === currentIndex) {
+                dot.className = 'w-5 h-2.5 rounded-full bg-cyan-400 transition-all duration-300';
+            } else {
+                dot.className = 'w-2.5 h-2.5 rounded-full bg-slate-700 hover:bg-slate-500 transition-all duration-300';
+            }
+        });
+    }
+
+    function getItemWidth() {
+        const item = items[0];
+        const gap = 24; // gap-6
+        return item.offsetWidth + gap;
+    }
+
+    function scrollToIndex(index) {
+        currentIndex = (index + items.length) % items.length;
+        carousel.scrollTo({
+            left: currentIndex * getItemWidth(),
+            behavior: 'smooth'
+        });
+        updateDots();
+    }
+
+    // Auto Slide Timer
+    const timer = setInterval(() => {
+        if (!isHovered) {
+            scrollToIndex(currentIndex + 1);
+        }
+    }, intervalMs);
+
+    // Pause on Hover
+    carousel.addEventListener('mouseenter', () => { isHovered = true; });
+    carousel.addEventListener('mouseleave', () => { isHovered = false; });
+
+    // Handle Manual Drag/Scroll sync
+    carousel.addEventListener('scroll', () => {
+        const width = getItemWidth();
+        const newIdx = Math.round(carousel.scrollLeft / width);
+        if (newIdx !== currentIndex && newIdx >= 0 && newIdx < items.length) {
+            currentIndex = newIdx;
+            updateDots();
+        }
+    }, { passive: true });
+}
+
+function manualScroll(carouselId, direction) {
+    const carousel = document.getElementById(carouselId);
+    if (!carousel) return;
+    const items = carousel.querySelectorAll('.carousel-item');
+    if (items.length === 0) return;
+    const itemWidth = items[0].offsetWidth + 24;
+    carousel.scrollBy({ left: direction * itemWidth, behavior: 'smooth' });
+}
+
+// Initialize Both Carousels on Page Load
+document.addEventListener('DOMContentLoaded', () => {
+    initAutoplayCarousel('teacherCarousel', 'teacherDots', 3500);
+    initAutoplayCarousel('studentCarousel', 'studentDots', 4000);
+});
+</script>
+{% endblock %}

@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block title %}Join Kelas Antar Galaksi - Quorra Space{% endblock %}
+
+{% block content %}
+<div class="max-w-md mx-auto my-8 space-y-6">
+    <div class="text-center">
+        <div class="inline-flex p-3 rounded-2xl bg-cyan-500/10 border border-cyan-500/30 mb-2 shadow-lg shadow-cyan-500/20">
+            <i class="bi bi-qr-code-scan text-3xl sm:text-4xl text-cyan-400"></i>
+        </div>
+        <h1 class="text-2xl sm:text-3xl font-black text-white font-heading">Join Kelas Baru</h1>
+        <p class="text-slate-400 text-xs sm:text-sm mt-1">Masukkan Kode Kelas unik yang diberikan oleh Guru Anda.</p>
+    </div>
+
+    <div class="glass-card p-6 md:p-8 border border-slate-800">
+        <form action="{{ url_for('student.join_class') }}" method="POST" class="space-y-6">
+            <div>
+                <label class="block text-[11px] font-mono uppercase text-cyan-400 font-bold mb-2 text-center">
+                    KODE KELAS SPACE (MISAL: QUORRA-A1B2)
+                </label>
+                <input type="text" name="code" required placeholder="QUORRA-XXXX"
+                    class="w-full px-4 py-3 bg-slate-950 border-2 border-slate-700/80 rounded-xl text-center text-xl sm:text-2xl font-mono font-black tracking-widest text-cyan-300 placeholder-slate-700 focus:outline-none focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/30 transition-all uppercase">
+            </div>
+
+            <button type="submit" class="w-full py-3 rounded-xl btn-space-cyan font-bold text-xs font-heading flex items-center justify-center gap-2 shadow-lg">
+                <i class="bi bi-rocket-takeoff-fill text-sm"></i> Masuk & Bergabung dengan Kelas
+            </button>
+        </form>
+
+        <div class="mt-6 pt-4 border-t border-slate-800/80 text-center text-xs text-slate-500 font-mono">
+            <p>Tanyakan kode unik kelas kepada Instruktur / Guru Anda di stasiun.</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

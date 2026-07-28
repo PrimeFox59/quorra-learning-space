@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% block title %}Kelas {{ class_obj.name }} - Quorra Space{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Breadcrumb -->
+    <div class="flex items-center gap-2 text-xs font-mono text-slate-400">
+        <a href="{{ url_for('student.dashboard') }}" class="hover:text-cyan-400">Dashboard Murid</a>
+        <span>/</span>
+        <span class="text-cyan-400 font-bold">{{ class_obj.name }}</span>
+    </div>
+
+    <!-- Class Header Banner -->
+    <div class="glass-card p-6 md:p-8 flex flex-col md:flex-row md:items-center justify-between gap-6 border-l-4 border-cyan-400 relative overflow-hidden">
+        <div class="absolute -right-10 -bottom-10 w-48 h-48 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="relative z-10">
+            <div class="flex items-center gap-2 mb-1.5">
+                <span class="px-2.5 py-0.5 rounded bg-cyan-950 border border-cyan-500/40 text-[10px] font-mono text-cyan-300 font-bold uppercase">{{ class_obj.subject or 'Umum' }}</span>
+                <span class="text-xs text-slate-500">•</span>
+                <span class="text-xs text-slate-400 font-mono"><i class="bi bi-person-badge"></i> Guru: {{ class_obj.workspace.owner.username }}</span>
+            </div>
+            <h1 class="text-2xl md:text-3xl font-black text-white font-heading">{{ class_obj.name }}</h1>
+            <p class="text-slate-400 text-xs sm:text-sm mt-1 max-w-xl">
+                Sektor Pembelajaran Aktif. Selesaikan kuis untuk meningkatkan EXP dan peringkat galaksi.
+            </p>
+        </div>
+
+        <div class="flex items-center gap-3 relative z-10">
+            <a href="{{ url_for('student.leaderboard', class_id=class_obj.id) }}" class="btn-space-purple px-5 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 shadow-lg">
+                <i class="bi bi-trophy-fill text-amber-400 text-base"></i> Leaderboard Kelas
+            </a>
+        </div>
+    </div>
+
+    <!-- Quiz & Quest List -->
+    <div class="space-y-4">
+        <h2 class="text-lg font-bold text-white font-heading flex items-center gap-2">
+            <i class="bi bi-joystick text-cyan-400"></i> Daftar Quest & Evaluasi Siap Dikerjakan ({{ quiz_data|length }})
+        </h2>
+
+        {% if not quiz_data %}
+        <div class="glass-card p-10 text-center text-slate-400 border border-slate-800">
+            <i class="bi bi-inbox text-4xl text-slate-600 block mb-2"></i>
+            <p class="text-sm font-semibold">Belum ada Kuis atau Quest di kelas ini.</p>
+        </div>
+        {% else %}
+        <div class="space-y-3.5">
+            {% for item in quiz_data %}
+            {% set q = item.quiz %}
+            <div class="glass-card p-5 flex flex-col md:flex-row md:items-center justify-between gap-5 border border-slate-800 hover:border-cyan-500/40 transition-all">
+                <div class="space-y-1.5">
+                    <div class="flex items-center gap-2">
+                        <span class="px-2.5 py-0.5 rounded text-[10px] font-mono font-bold uppercase border
+                            {% if q.quiz_type == 'UJIAN' %} bg-rose-950/90 border-rose-500 text-rose-300
+                            {% elif q.quiz_type == 'QUEST' %} bg-purple-950/90 border-purple-500 text-purple-300
+                            {% else %} bg-cyan-950/90 border-cyan-500 text-cyan-300 {% endif %}">
+                            {{ q.quiz_type }}
+                        </span>
+                        <span class="text-xs text-amber-400 font-mono font-bold">+{{ q.exp_reward }} EXP Reward</span>
+                    </div>
+
+                    <h3 class="text-base font-bold text-white font-heading">{{ q.title }}</h3>
+                    <p class="text-xs text-slate-400 line-clamp-2">{{ q.description or 'Tidak ada petunjuk khusus.' }}</p>
+
+                    <div class="flex flex-wrap items-center gap-4 text-xs font-mono text-slate-400 pt-1">
+                        <span><i class="bi bi-patch-question text-cyan-400"></i> {{ q.questions.count() }} Soal</span>
+                        <span><i class="bi bi-clock-history text-cyan-400"></i> {% if q.time_limit_seconds > 0 %}{{ q.time_limit_seconds // 60 }} Min Limit{% else %}No Limit{% endif %}</span>
+                        <span><i class="bi bi-arrow-repeat text-purple-400"></i> Percobaan: {{ item.attempts_count }} / {% if q.max_attempts > 0 %}{{ q.max_attempts }}x{% else %}∞{% endif %}</span>
+                    </div>
+                </div>
+
+                <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 shrink-0">
+                    {% if item.best_score is not none %}
+                    <div class="p-2.5 rounded-xl bg-slate-900 border border-slate-800 text-center min-w-[100px]">
+                        <span class="block text-[9px] text-slate-400 font-mono uppercase">Skor Terbaik</span>
+                        <span class="text-lg font-black text-amber-400 font-mono">{{ item.best_score }} / 100</span>
+                    </div>
+                    {% endif %}
+
+                    {% if item.can_attempt %}
+                    <a href="{{ url_for('student.take_quiz', quiz_id=q.id) }}" class="btn-space-cyan px-5 py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-2 shadow-md">
+                        <i class="bi bi-play-circle-fill text-base"></i> Mulaikan Misi
+                    </a>
+                    {% else %}
+                    <span class="px-4 py-2.5 rounded-xl text-xs font-mono bg-slate-900 border border-slate-800 text-slate-500 text-center">
+                        Batas Percobaan Habis ({{ item.attempts_count }}/{{ q.max_attempts }})
+                    </span>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,280 @@
+{% extends "base.html" %}
+
+{% block title %}Kelola Soal: {{ quiz.title }} - Quorra Space{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Breadcrumbs -->
+    <div class="flex items-center gap-2 text-xs font-mono text-slate-400">
+        <a href="{{ url_for('teacher.dashboard') }}" class="hover:text-cyan-400">Dashboard Guru</a>
+        <span>/</span>
+        <a href="{{ url_for('teacher.class_detail', class_id=quiz.class_id) }}" class="hover:text-cyan-400">{{ quiz.class_obj.name }}</a>
+        <span>/</span>
+        <span class="text-cyan-400 font-bold">Kelola Soal</span>
+    </div>
+
+    <!-- Quiz Summary Header -->
+    <div class="glass-card p-6 border-l-4 border-cyan-400 flex flex-col md:flex-row md:items-center justify-between gap-4 relative overflow-hidden">
+        <div class="relative z-10">
+            <span class="px-2.5 py-0.5 rounded text-[10px] font-mono font-bold bg-cyan-950 border border-cyan-500/40 text-cyan-300 uppercase">
+                {{ quiz.quiz_type }}
+            </span>
+            <h1 class="text-xl md:text-2xl font-black text-white font-heading mt-1">{{ quiz.title }}</h1>
+            <p class="text-xs text-slate-400 mt-1 font-mono">
+                Limit Waktu: {% if quiz.time_limit_seconds > 0 %}{{ quiz.time_limit_seconds // 60 }} Menit{% else %}Tidak Ada{% endif %} | 
+                Maks Percobaan: {% if quiz.max_attempts > 0 %}{{ quiz.max_attempts }}x{% else %}∞{% endif %} | 
+                Hadiah EXP: +{{ quiz.exp_reward }}
+            </p>
+        </div>
+        <a href="{{ url_for('teacher.class_detail', class_id=quiz.class_id) }}" class="btn-space-purple px-4 py-2.5 rounded-xl text-xs font-bold font-heading flex items-center justify-center gap-1.5 self-start md:self-auto shadow-md">
+            <i class="bi bi-check-circle-fill text-sm"></i> Selesai & Kembali ke Kelas
+        </a>
+    </div>
+
+    <!-- AI Generator Card (Google Gemini AI) -->
+    <div class="glass-card p-6 border-l-4 border-purple-500 bg-slate-950/60 border border-slate-800">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+            <div>
+                <h2 class="text-base font-bold text-white font-heading flex items-center gap-2">
+                    <i class="bi bi-robot text-purple-400 text-lg"></i> AI Auto Question Generator (Google Gemini)
+                </h2>
+                <p class="text-xs text-slate-400 mt-0.5">Input materi rangkuman, lalu biarkan AI membuat soal pilihan ganda secara otomatis!</p>
+            </div>
+            <span class="px-3 py-1 rounded-lg text-[11px] font-mono font-bold self-start sm:self-auto shrink-0
+                {% if ai_configured %} bg-purple-950/90 border border-purple-500/50 text-purple-300
+                {% else %} bg-amber-950/90 border border-amber-500/50 text-amber-300 {% endif %}">
+                <i class="bi bi-cpu-fill"></i> Model: {{ ai_model }}
+            </span>
+        </div>
+
+        {% if not ai_configured %}
+        <div class="p-3.5 rounded-xl bg-amber-950/50 border border-amber-500/40 text-amber-200 text-xs flex items-center gap-3">
+            <i class="bi bi-exclamation-circle-fill text-lg text-amber-400 shrink-0"></i>
+            <div>
+                <strong>Gemini API Key Belum Dikonfigurasi!</strong>
+                <p class="text-[11px] text-amber-300/80 mt-0.5">Superuser perlu memasukkan Gemini API Key di Command Center sebelum fitur AI Generator ini dapat digunakan.</p>
+            </div>
+        </div>
+        {% else %}
+        <form action="{{ url_for('teacher.generate_ai_questions', quiz_id=quiz.id) }}" method="POST" class="space-y-4">
+            <div>
+                <label class="block text-[11px] font-mono uppercase text-purple-300 font-bold mb-1">Materi Pembelajaran / Rangkuman Teks</label>
+                <textarea name="material_text" rows="3" required placeholder="Tempelkan materi pembelajaran di sini. Contoh: Gravitasi adalah gaya tarik-menarik antara semua massa di alam semesta..."
+                    class="w-full px-3.5 py-2 bg-slate-950 border border-slate-700/80 rounded-xl text-slate-100 placeholder-slate-600 focus:outline-none focus:border-purple-400 text-xs font-mono leading-relaxed"></textarea>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div>
+                    <label class="block text-[10px] font-mono uppercase text-purple-300 font-bold mb-1">Mode Generasi AI</label>
+                    <select name="generation_mode" class="w-full px-3 py-2 bg-slate-950 border border-slate-700/80 rounded-xl text-slate-100 focus:outline-none focus:border-purple-400 text-xs font-mono">
+                        <option value="ADD" selected>➕ Tambah ke Soal Ada</option>
+                        <option value="REPLACE">🔄 Ganti Semua Soal</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-[10px] font-mono uppercase text-slate-300 font-bold mb-1">Jumlah Soal</label>
+                    <select name="num_questions" class="w-full px-3 py-2 bg-slate-950 border border-slate-700/80 rounded-xl text-slate-100 focus:outline-none focus:border-purple-400 text-xs font-mono">
+                        <option value="1">1 Soal</option>
+                        <option value="3" selected>3 Soal</option>
+                        <option value="5">5 Soal</option>
+                        <option value="10">10 Soal</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-[10px] font-mono uppercase text-slate-300 font-bold mb-1">Poin Standar</label>
+                    <input type="number" name="points_per_q" min="1" value="10" required
+                        class="w-full px-3 py-2 bg-slate-950 border border-slate-700/80 rounded-xl text-slate-100 focus:outline-none focus:border-purple-400 text-xs font-mono">
+                </div>
+            </div>
+
+            <button type="submit" class="w-full btn-space-purple py-2.5 rounded-xl font-bold text-xs font-heading flex items-center justify-center gap-2 shadow-md">
+                <i class="bi bi-stars text-base"></i> Generate Soal Otomatis Dengan Gemini AI
+            </button>
+        </form>
+        {% endif %}
+    </div>
+
+    <!-- Main Creation & Question List Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <!-- Manual Question Form with Upload Image & ABCDE Options (Left 5 cols) -->
+        <div class="lg:col-span-5 space-y-6">
+            <div class="glass-card p-5 border border-slate-800">
+                <h2 class="text-base font-bold text-white font-heading mb-3 flex items-center gap-2">
+                    <i class="bi bi-plus-circle-fill text-cyan-400"></i> Tambah Soal Manual (ABCDE)
+                </h2>
+
+                <form action="{{ url_for('teacher.quiz_builder', quiz_id=quiz.id) }}" method="POST" enctype="multipart/form-data" class="space-y-3.5">
+                    <div>
+                        <label class="block text-[10px] font-mono uppercase text-slate-300 mb-1 font-bold">Teks Pertanyaan</label>
+                        <textarea name="question_text" rows="3" required placeholder="Tuliskan pertanyaan soal..."
+                            class="w-full px-3.5 py-2 bg-slate-950 border border-slate-700/80 rounded-xl text-xs text-slate-100 placeholder-slate-600 focus:outline-none focus:border-cyan-400"></textarea>
+                    </div>
+
+                    <!-- Question Image Upload -->
+                    <div>
+                        <label class="block text-[10px] font-mono uppercase text-cyan-400 mb-1 font-bold">
+                            <i class="bi bi-image"></i> Foto Lampiran Soal (Opsional)
+                        </label>
+                        <input type="file" name="question_image" accept="image/*"
+                            class="w-full text-xs text-slate-400 file:mr-2 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-[10px] file:font-semibold file:bg-slate-900 file:text-cyan-300">
+                    </div>
+
+                    <div>
+                        <label class="block text-[10px] font-mono uppercase text-amber-400 mb-1 font-bold">Poin Soal</label>
+                        <input type="number" name="points" min="1" value="10" required
+                            class="w-full px-3.5 py-2 bg-slate-950 border border-slate-700/80 rounded-xl text-xs text-slate-100 focus:outline-none focus:border-amber-400 font-mono">
+                    </div>
+
+                    <!-- Options ABCDE -->
+                    <div class="space-y-2.5 pt-1">
+                        <label class="block text-[10px] font-mono uppercase text-slate-300 font-bold">Pilihan Jawaban & Kunci (Pilih 1 Radio):</label>
+                        
+                        {% for letter in ['A', 'B', 'C', 'D', 'E'] %}
+                        <div class="p-2.5 rounded-xl bg-slate-950/80 border border-slate-800 space-y-1.5">
+                            <div class="flex items-center gap-2">
+                                <input type="radio" name="correct_option" value="{{ letter }}" {% if letter == 'A' %}required{% endif %} id="rad{{ letter }}" class="text-cyan-400">
+                                <label for="rad{{ letter }}" class="font-bold font-mono text-cyan-400 text-xs">{{ letter }}.</label>
+                                <input type="text" name="option_{{ letter|lower }}" placeholder="Jawaban {{ letter }}"
+                                    class="flex-1 px-3 py-1 bg-slate-900 border border-slate-700/80 rounded-lg text-slate-100 text-xs focus:outline-none focus:border-cyan-400">
+                            </div>
+                            <div class="pl-6">
+                                <input type="file" name="option_{{ letter|lower }}_image" accept="image/*"
+                                    class="w-full text-[10px] text-slate-400 file:mr-2 file:py-0.5 file:px-2 file:rounded file:border-0 file:text-[9px] file:bg-slate-900 file:text-slate-300">
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <button type="submit" class="w-full btn-space-cyan py-2.5 rounded-xl font-bold text-xs font-heading flex items-center justify-center gap-1.5 mt-3 shadow-md">
+                        <i class="bi bi-plus-lg"></i> Tambahkan Soal Ke Bank
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Questions List (Right 7 cols) -->
+        <div class="lg:col-span-7 space-y-4">
+            <h2 class="text-base font-bold text-white font-heading flex items-center gap-2">
+                <i class="bi bi-list-check text-cyan-400"></i> Daftar Soal Tersimpan ({{ questions|length }})
+            </h2>
+
+            {% if not questions %}
+            <div class="glass-card p-10 text-center text-slate-400 border border-slate-800">
+                <i class="bi bi-patch-question text-4xl text-slate-600 block mb-2"></i>
+                <p class="text-sm font-semibold">Belum ada soal ditambahkan.</p>
+                <p class="text-xs text-slate-500 mt-1">Gunakan formulir manual di kiri atau AI Generator di atas.</p>
+            </div>
+            {% else %}
+            <div class="space-y-3.5">
+                {% for q in questions %}
+                <div class="glass-card p-4 space-y-2.5 border border-slate-800">
+                    <div class="flex items-start justify-between gap-3">
+                        <div class="flex items-center gap-2">
+                            <span class="w-6 h-6 rounded bg-cyan-950 border border-cyan-500/50 text-cyan-300 font-bold text-[11px] flex items-center justify-center font-mono">
+                                #{{ loop.index }}
+                            </span>
+                            <span class="text-xs text-amber-400 font-mono font-bold">{{ q.points }} Poin</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button onclick="openEditModal('{{ q.id }}')" class="text-cyan-400 hover:text-cyan-300 text-[11px] px-2 py-0.5 bg-cyan-950 border border-cyan-500/40 rounded-lg flex items-center gap-1 font-mono">
+                                <i class="bi bi-pencil-square"></i> Edit
+                            </button>
+
+                            <form action="{{ url_for('teacher.delete_question', question_id=q.id) }}" method="POST" onsubmit="return confirm('Hapus soal ini?');">
+                                <button type="submit" class="text-slate-500 hover:text-rose-400 text-xs p-1">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <p class="text-xs font-semibold text-white whitespace-pre-line leading-relaxed">{{ q.question_text }}</p>
+                    {% if q.image_path %}
+                    <div class="mt-1">
+                        <img src="{{ url_for('static', filename=q.image_path) }}" alt="Foto Soal" class="max-h-36 rounded-lg border border-cyan-500/30 object-cover">
+                    </div>
+                    {% endif %}
+
+                    <!-- Options Grid -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px] font-mono pt-1">
+                        {% for opt in q.options.all() %}
+                        <div class="p-2 rounded-lg border flex flex-col justify-between
+                            {% if opt.is_correct %} bg-emerald-950/70 border-emerald-500/80 text-emerald-300 font-bold
+                            {% else %} bg-slate-950/60 border-slate-800 text-slate-300 {% endif %}">
+                            <div class="flex items-center justify-between">
+                                <span><strong class="mr-1">{{ opt.option_letter }}.</strong> {{ opt.option_text }}</span>
+                                {% if opt.is_correct %}
+                                <i class="bi bi-check-circle-fill text-emerald-400"></i>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Edit Question Modal for Question #{{ q.id }} -->
+                <div id="editModal_{{ q.id }}" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center hidden p-4">
+                    <div class="glass-card max-w-lg w-full p-5 border-cyan-500/50 max-h-[85vh] overflow-y-auto shadow-2xl">
+                        <div class="flex justify-between items-center mb-3">
+                            <h3 class="text-base font-bold text-white font-heading flex items-center gap-2">
+                                <i class="bi bi-pencil-square text-cyan-400"></i> Edit Soal #{{ loop.index }}
+                            </h3>
+                            <button onclick="closeEditModal('{{ q.id }}')" class="text-slate-400 hover:text-white">
+                                <i class="bi bi-x-lg"></i>
+                            </button>
+                        </div>
+
+                        <form action="{{ url_for('teacher.edit_question', question_id=q.id) }}" method="POST" enctype="multipart/form-data" class="space-y-3">
+                            <div>
+                                <label class="block text-[10px] font-mono uppercase text-slate-300 mb-1">Teks Pertanyaan</label>
+                                <textarea name="question_text" rows="3" required class="w-full px-3 py-2 bg-slate-950 border border-slate-700/80 rounded-xl text-slate-100 text-xs focus:outline-none focus:border-cyan-400">{{ q.question_text }}</textarea>
+                            </div>
+
+                            <div>
+                                <label class="block text-[10px] font-mono uppercase text-amber-400 mb-1">Poin Soal</label>
+                                <input type="number" name="points" value="{{ q.points }}" required class="w-full px-3 py-1.5 bg-slate-950 border border-slate-700/80 rounded-lg text-slate-100 font-mono text-xs">
+                            </div>
+
+                            <div class="space-y-2 border-t border-slate-800 pt-2">
+                                <label class="block text-[10px] font-mono uppercase text-slate-300 font-bold">Edit Pilihan Jawaban & Kunci:</label>
+
+                                {% set opt_dict = {} %}
+                                {% for o in q.options.all() %}
+                                    {% set _ = opt_dict.update({o.option_letter: o}) %}
+                                {% endfor %}
+
+                                {% for letter in ['A', 'B', 'C', 'D', 'E'] %}
+                                {% set cur_opt = opt_dict.get(letter) %}
+                                <div class="p-2 rounded-xl bg-slate-950/80 border border-slate-800">
+                                    <div class="flex items-center gap-2">
+                                        <input type="radio" name="correct_option" value="{{ letter }}" {% if cur_opt and cur_opt.is_correct %}checked{% endif %} id="edit_rad_{{ q.id }}_{{ letter }}" class="text-cyan-400">
+                                        <label for="edit_rad_{{ q.id }}_{{ letter }}" class="font-bold font-mono text-cyan-400 text-xs">{{ letter }}.</label>
+                                        <input type="text" name="option_{{ letter|lower }}" value="{{ cur_opt.option_text if cur_opt else '' }}" placeholder="Jawaban {{ letter }}" class="flex-1 px-2.5 py-1 bg-slate-900 border border-slate-700/80 rounded-lg text-slate-100 text-xs">
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+
+                            <div class="flex justify-end gap-2 pt-3 border-t border-slate-800">
+                                <button type="button" onclick="closeEditModal('{{ q.id }}')" class="px-3 py-1.5 rounded-xl text-slate-400 text-xs font-mono">Batal</button>
+                                <button type="submit" class="btn-space-cyan px-4 py-1.5 rounded-xl text-xs font-heading font-bold">Simpan Perubahan</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+function openEditModal(qId) {
+    document.getElementById('editModal_' + qId).classList.remove('hidden');
+}
+function closeEditModal(qId) {
+    document.getElementById('editModal_' + qId).classList.add('hidden');
+}
+</script>
+{% endblock %}

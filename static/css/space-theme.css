@@ -1,0 +1,223 @@
+/* Space Blue Modern LMS CSS Design System - Quorra Space v2.0 */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700;800&family=Outfit:wght@400;500;600;700;800;900&display=swap');
+
+:root {
+  --bg-cosmic-dark: #070a13;
+  --bg-card-glass: rgba(15, 23, 42, 0.78);
+  --border-neon-cyan: rgba(56, 189, 248, 0.25);
+  --border-neon-hover: rgba(56, 189, 248, 0.75);
+  --color-cyan: #00f0ff;
+  --color-blue-accent: #38bdf8;
+  --color-purple-accent: #a855f7;
+  --color-gold: #fbbf24;
+  --color-rose: #f43f5e;
+  --color-emerald: #10b981;
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+
+  --font-heading: 'Outfit', system-ui, -apple-system, sans-serif;
+  --font-body: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+}
+
+body {
+  background-color: var(--bg-cosmic-dark);
+  color: var(--text-main);
+  font-family: var(--font-body);
+  overflow-x: hidden;
+  min-height: 100vh;
+}
+
+h1, h2, h3, h4, h5, h6, .font-heading {
+  font-family: var(--font-heading);
+}
+
+.font-mono {
+  font-family: var(--font-mono);
+}
+
+/* Background Canvas */
+#starfield-canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: -1;
+  pointer-events: none;
+}
+
+/* Glassmorphism Cards */
+.glass-card {
+  background: var(--bg-card-glass);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--border-neon-cyan);
+  border-radius: 1rem;
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.glass-card:hover {
+  border-color: var(--border-neon-hover);
+  box-shadow: 0 0 24px rgba(56, 189, 248, 0.22);
+}
+
+.glass-card-purple {
+  border-color: rgba(168, 85, 247, 0.3);
+}
+
+.glass-card-purple:hover {
+  border-color: rgba(168, 85, 247, 0.7);
+  box-shadow: 0 0 24px rgba(168, 85, 247, 0.25);
+}
+
+.glass-card-amber {
+  border-color: rgba(251, 191, 36, 0.3);
+}
+
+.glass-card-amber:hover {
+  border-color: rgba(251, 191, 36, 0.7);
+  box-shadow: 0 0 24px rgba(251, 191, 36, 0.25);
+}
+
+.glass-nav {
+  background: rgba(7, 10, 19, 0.88);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(56, 189, 248, 0.2);
+}
+
+/* Glowing Elements */
+.glow-cyan {
+  box-shadow: 0 0 20px rgba(0, 240, 255, 0.4);
+}
+
+.glow-purple {
+  box-shadow: 0 0 20px rgba(168, 85, 247, 0.4);
+}
+
+.glow-gold {
+  box-shadow: 0 0 20px rgba(251, 191, 36, 0.4);
+}
+
+/* Futuristic Buttons */
+.btn-space-cyan {
+  background: linear-gradient(135deg, #0284c7, #0369a1);
+  border: 1px solid #38bdf8;
+  color: #ffffff;
+  font-weight: 600;
+  box-shadow: 0 0 15px rgba(56, 189, 248, 0.3);
+  transition: all 0.25s ease;
+}
+
+.btn-space-cyan:hover {
+  background: linear-gradient(135deg, #38bdf8, #0284c7);
+  border-color: #00f0ff;
+  box-shadow: 0 0 25px rgba(0, 240, 255, 0.5);
+  transform: translateY(-1.5px);
+}
+
+.btn-space-purple {
+  background: linear-gradient(135deg, #7c3aed, #6d28d9);
+  border: 1px solid #a78bfa;
+  color: #ffffff;
+  font-weight: 600;
+  box-shadow: 0 0 15px rgba(167, 139, 250, 0.3);
+  transition: all 0.25s ease;
+}
+
+.btn-space-purple:hover {
+  background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+  border-color: #c084fc;
+  box-shadow: 0 0 25px rgba(168, 85, 247, 0.5);
+  transform: translateY(-1.5px);
+}
+
+.btn-space-gold {
+  background: linear-gradient(135deg, #d97706, #b45309);
+  border: 1px solid #fbbf24;
+  color: #ffffff;
+  font-weight: 600;
+  box-shadow: 0 0 15px rgba(251, 191, 36, 0.3);
+  transition: all 0.25s ease;
+}
+
+.btn-space-gold:hover {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  border-color: #fef08a;
+  box-shadow: 0 0 25px rgba(251, 191, 36, 0.55);
+  transform: translateY(-1.5px);
+}
+
+/* EXP Progress Bar */
+.exp-progress-container {
+  background: rgba(15, 23, 42, 0.9);
+  border-radius: 9999px;
+  overflow: hidden;
+  height: 10px;
+  border: 1px solid rgba(56, 189, 248, 0.3);
+}
+
+.exp-progress-bar {
+  background: linear-gradient(90deg, #38bdf8, #00f0ff, #a855f7);
+  height: 100%;
+  border-radius: 9999px;
+  box-shadow: 0 0 12px #00f0ff;
+  transition: width 0.6s ease;
+}
+
+/* Quiz Option Labels */
+.quiz-option-label {
+  display: flex;
+  align-items: center;
+  padding: 0.85rem 1.15rem;
+  min-height: 52px;
+  background: rgba(15, 23, 42, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 0.85rem;
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.quiz-option-label:hover {
+  background: rgba(56, 189, 248, 0.12);
+  border-color: var(--color-cyan);
+  transform: translateX(3px);
+}
+
+.quiz-option-radio:checked + .quiz-option-label {
+  background: rgba(56, 189, 248, 0.22);
+  border-color: var(--color-cyan);
+  box-shadow: 0 0 20px rgba(0, 240, 255, 0.35);
+}
+
+/* Pulse animation */
+@keyframes pulse-glow {
+  0%, 100% { opacity: 0.6; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.05); }
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 3s infinite ease-in-out;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #070a13;
+}
+::-webkit-scrollbar-thumb {
+  background: #1e293b;
+  border-radius: 4px;
+  border: 1px solid rgba(56, 189, 248, 0.25);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #38bdf8;
+}

@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+
+{% block title %}Buat Evaluasi Baru - Kelas {{ class_obj.name }}{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto space-y-6">
+    <!-- Breadcrumb -->
+    <div class="flex items-center gap-2 text-xs font-mono text-slate-400">
+        <a href="{{ url_for('teacher.dashboard') }}" class="hover:text-cyan-400">Dashboard Guru</a>
+        <span>/</span>
+        <a href="{{ url_for('teacher.class_detail', class_id=class_obj.id) }}" class="hover:text-cyan-400">{{ class_obj.name }}</a>
+        <span>/</span>
+        <span class="text-cyan-400 font-bold">Buat Quiz Baru</span>
+    </div>
+
+    <div class="glass-card p-6 md:p-8 border border-slate-800">
+        <h1 class="text-xl md:text-2xl font-black text-white font-heading flex items-center gap-2 mb-1">
+            <i class="bi bi-patch-plus-fill text-cyan-400"></i> Buat Evaluasi Baru
+        </h1>
+        <p class="text-xs text-slate-400 mb-6">Atur tipe quest/kuis/ujian, limit waktu per pengerjaan, dan batas percobaan mengulang murid.</p>
+
+        <form action="{{ url_for('teacher.create_quiz', class_id=class_obj.id) }}" method="POST" class="space-y-5">
+            <div>
+                <label class="block text-[11px] font-mono uppercase text-slate-300 mb-1 font-bold">Judul Evaluasi / Misi</label>
+                <input type="text" name="title" required placeholder="misal: Misi 02: Hukum Gravitasi & Orbit"
+                    class="w-full px-4 py-2.5 bg-slate-950 border border-slate-700/80 rounded-xl text-xs text-slate-100 placeholder-slate-600 focus:outline-none focus:border-cyan-400">
+            </div>
+
+            <div>
+                <label class="block text-[11px] font-mono uppercase text-slate-300 mb-1 font-bold">Tipe Evaluasi</label>
+                <select name="quiz_type" class="w-full px-4 py-2.5 bg-slate-950 border border-slate-700/80 rounded-xl text-xs text-slate-100 focus:outline-none focus:border-cyan-400 font-mono">
+                    <option value="KUIS">KUIS (Latihan Harian)</option>
+                    <option value="QUEST">QUEST (Misi Tantangan Interaktif)</option>
+                    <option value="UJIAN">UJIAN (Evaluasi Resmi Sektor)</option>
+                </select>
+            </div>
+
+            <div>
+                <label class="block text-[11px] font-mono uppercase text-slate-300 mb-1 font-bold">Deskripsi / Petunjuk Misi</label>
+                <textarea name="description" rows="3" placeholder="Tuliskan petunjuk pengerjaan bagi murid..."
+                    class="w-full px-4 py-2.5 bg-slate-950 border border-slate-700/80 rounded-xl text-xs text-slate-100 placeholder-slate-600 focus:outline-none focus:border-cyan-400"></textarea>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-3 p-4 rounded-xl bg-slate-950/80 border border-slate-800">
+                <div>
+                    <label class="block text-[10px] font-mono uppercase text-cyan-400 mb-1 font-bold">
+                        <i class="bi bi-clock-history"></i> Limit Waktu (Min)
+                    </label>
+                    <input type="number" name="time_limit_minutes" min="0" value="10" required
+                        class="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-xs text-slate-100 focus:outline-none focus:border-cyan-400 font-mono">
+                    <span class="text-[9px] text-slate-500 block mt-1">Isi 0 untuk tanpa limit.</span>
+                </div>
+
+                <div>
+                    <label class="block text-[10px] font-mono uppercase text-purple-400 mb-1 font-bold">
+                        <i class="bi bi-arrow-repeat"></i> Maks Mengulang
+                    </label>
+                    <input type="number" name="max_attempts" min="0" value="1" required
+                        class="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-xs text-slate-100 focus:outline-none focus:border-purple-400 font-mono">
+                    <span class="text-[9px] text-slate-500 block mt-1">Isi 0 untuk tak terbatas.</span>
+                </div>
+
+                <div>
+                    <label class="block text-[10px] font-mono uppercase text-amber-400 mb-1 font-bold">
+                        <i class="bi bi-award-fill"></i> Hadiah EXP
+                    </label>
+                    <input type="number" name="exp_reward" min="0" value="50" required
+                        class="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-xs text-slate-100 focus:outline-none focus:border-amber-400 font-mono">
+                    <span class="text-[9px] text-slate-500 block mt-1">EXP jika lulus kuis.</span>
+                </div>
+            </div>
+
+            <div class="flex justify-end gap-3 pt-4 border-t border-slate-800/80">
+                <a href="{{ url_for('teacher.class_detail', class_id=class_obj.id) }}" class="px-4 py-2 rounded-xl text-slate-400 hover:bg-slate-800 text-xs font-mono">Batal</a>
+                <button type="submit" class="btn-space-cyan px-6 py-2.5 rounded-xl text-xs font-bold font-heading flex items-center gap-2">
+                    Lanjut Buat Soal <i class="bi bi-arrow-right text-sm"></i>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
