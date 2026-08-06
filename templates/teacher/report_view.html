@@ -1,0 +1,245 @@
+{% extends "base.html" %}
+
+{% block title %}Rapor Resmi Diagnostik & Potensi: {{ student.username }} - Quorra Space{% endblock %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto space-y-6 print:m-0 print:p-0 print:max-w-none">
+    <!-- Top Action Bar (Hidden on Print & Public Share View) -->
+    <div class="glass-card p-4 border border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4 print:hidden">
+        <div class="flex items-center gap-2 text-xs font-mono text-slate-400">
+            <a href="{{ url_for('teacher.dashboard') }}" class="hover:text-cyan-400">Dashboard Guru</a>
+            <span>/</span>
+            <a href="{{ url_for('teacher.student_analysis_detail', class_id=class_obj.id, student_id=student.id) }}" class="hover:text-cyan-400">Analisis Siswa</a>
+            <span>/</span>
+            <span class="text-cyan-400 font-bold">Rapor Digital Siswa</span>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-2.5 w-full sm:w-auto">
+            <!-- Copy Link Wali Murid Button -->
+            <button onclick="copyShareLink()" id="btnCopyLink" class="btn-space-cyan px-3.5 py-2 rounded-xl text-xs font-bold font-heading flex items-center justify-center gap-1.5 shadow-md flex-1 sm:flex-none">
+                <i class="bi bi-share-fill text-sm"></i> Salin Link Wali Murid
+            </button>
+
+            <!-- Cetak PDF Button -->
+            <button onclick="window.print()" class="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white px-3.5 py-2 rounded-xl text-xs font-bold font-heading flex items-center justify-center gap-1.5 shadow-lg shadow-emerald-500/20 transition-all border border-emerald-400/40 flex-1 sm:flex-none">
+                <i class="bi bi-file-earmark-pdf-fill text-sm"></i> Cetak Rapor (PDF)
+            </button>
+        </div>
+    </div>
+
+    <!-- Official Report Paper Document Container -->
+    <div id="reportPaper" class="glass-card p-6 md:p-10 border-2 border-cyan-500/40 shadow-2xl relative overflow-hidden bg-slate-950/95 text-slate-100 print:bg-white print:text-black print:border-none print:shadow-none">
+        
+        <!-- Header Rapor -->
+        <div class="border-b-2 border-cyan-500/40 pb-6 mb-6 flex flex-col md:flex-row items-center justify-between gap-6">
+            <div class="flex items-center gap-4 text-center md:text-left">
+                <div class="w-16 h-16 rounded-2xl bg-cyan-950 border border-cyan-400/60 text-cyan-400 flex items-center justify-center text-3xl font-black font-mono shadow-lg shadow-cyan-500/20 shrink-0 print:border-black print:text-black">
+                    <i class="bi bi-rocket-takeoff-fill"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl md:text-2xl font-black font-heading tracking-wide uppercase text-white print:text-black">RAPOR DIAGNOSTIK & POTENSI SISWA</h1>
+                    <p class="text-xs text-cyan-400 font-mono font-bold mt-0.5 print:text-slate-700">QUORRA SPACE - LEARNING MANAGEMENT & CHARACTER ENGINE</p>
+                    <p class="text-[11px] text-slate-400 font-mono mt-0.5 print:text-slate-600">Nomor Dokumen Rapor: REPO-{{ report.report_token[:8].upper() }} | Tanggal Terbit: {{ report.created_at.strftime('%d %B %Y') }}</p>
+                </div>
+            </div>
+
+            <div class="text-right font-mono text-xs bg-slate-900/90 border border-slate-800 p-3.5 rounded-xl shrink-0 min-w-[200px] print:bg-slate-100 print:border-slate-300">
+                <div class="text-slate-400 text-[10px] uppercase font-bold print:text-slate-600">STASIUN PEMBELAJARAN</div>
+                <div class="font-bold text-white font-heading text-sm mt-0.5 print:text-black">{{ class_obj.name }}</div>
+                <div class="text-cyan-400 text-[11px] print:text-slate-800">{{ class_obj.subject }}</div>
+            </div>
+        </div>
+
+        <!-- Student Profile Information Banner -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 p-4 rounded-2xl bg-slate-900/80 border border-slate-800 font-mono text-xs mb-8 print:bg-slate-100 print:border-slate-300">
+            <div>
+                <span class="block text-[10px] text-slate-400 font-bold uppercase print:text-slate-600">NAMA ASTRODUT / SISWA</span>
+                <span class="text-sm font-bold text-white font-heading print:text-black">{{ student.username }}</span>
+            </div>
+            <div>
+                <span class="block text-[10px] text-slate-400 font-bold uppercase print:text-slate-600">PANGKAT & LEVEL</span>
+                <span class="text-sm font-bold text-purple-300 print:text-purple-700">Level {{ student.level }} ({{ student.rank_title }})</span>
+            </div>
+            <div>
+                <span class="block text-[10px] text-slate-400 font-bold uppercase print:text-slate-600">RATA-RATA EVALUASI</span>
+                <span class="text-sm font-bold text-emerald-400 print:text-emerald-700">{{ data.avg_score }} / 100</span>
+            </div>
+            <div>
+                <span class="block text-[10px] text-slate-400 font-bold uppercase print:text-slate-600">PROFIL TIPE MBTI</span>
+                <span class="text-sm font-bold text-amber-400 print:text-amber-700">{{ data.psychological_profile.mbti_type }} ({{ data.psychological_profile.mbti_title }})</span>
+            </div>
+        </div>
+
+        <!-- Section 1: Narasi AI Ringkasan Performa Akademik -->
+        <div class="space-y-3 mb-8">
+            <h2 class="text-base font-bold text-white font-heading flex items-center gap-2 border-b border-slate-800 pb-2 print:text-black print:border-slate-300">
+                <i class="bi bi-[#10b981] bi-chat-quote-fill text-cyan-400"></i> I. Narasi Ringkasan Performa & Evaluasi Akademik
+            </h2>
+            <div class="p-4 rounded-2xl bg-slate-900/50 border border-slate-800 text-xs md:text-sm leading-relaxed text-slate-200 font-sans print:bg-white print:text-black print:border-none">
+                {{ report.ai_narrative_summary|nl2br }}
+            </div>
+        </div>
+
+        <!-- Section 2: Grafik Radar Kemampuan & Potensi Siswa -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-8 items-center">
+            <!-- Radar Chart -->
+            <div class="lg:col-span-6 p-4 rounded-2xl bg-slate-900/60 border border-slate-800 text-center print:bg-slate-50 print:border-slate-300">
+                <h3 class="text-xs font-bold text-slate-300 font-heading mb-3 uppercase tracking-wider print:text-black">Grafik Radar 5 Dimensi Kemampuan</h3>
+                <div class="relative w-full max-w-[320px] mx-auto h-[260px]">
+                    <canvas id="reportRadarChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Metrik Indikator Angka -->
+            <div class="lg:col-span-6 space-y-3">
+                <h3 class="text-xs font-bold text-slate-300 font-heading uppercase tracking-wider print:text-black">Skor Parameter Dimensi Kemampuan</h3>
+                <div class="space-y-2 font-mono text-xs">
+                    <div class="flex items-center justify-between p-2.5 rounded-xl bg-slate-900 border border-slate-800 print:bg-white print:border-slate-300">
+                        <span class="text-slate-300 print:text-slate-700">1. Pemahaman Konsep Core</span>
+                        <span class="font-bold text-cyan-400 print:text-cyan-800">{{ data.radar_scores[0] }} / 100</span>
+                    </div>
+                    <div class="flex items-center justify-between p-2.5 rounded-xl bg-slate-900 border border-slate-800 print:bg-white print:border-slate-300">
+                        <span class="text-slate-300 print:text-slate-700">2. Ketelitian Detail Soal</span>
+                        <span class="font-bold text-purple-400 print:text-purple-800">{{ data.radar_scores[1] }} / 100</span>
+                    </div>
+                    <div class="flex items-center justify-between p-2.5 rounded-xl bg-slate-900 border border-slate-800 print:bg-white print:border-slate-300">
+                        <span class="text-slate-300 print:text-slate-700">3. Kecepatan Respon & Efisiensi</span>
+                        <span class="font-bold text-emerald-400 print:text-emerald-800">{{ data.radar_scores[2] }} / 100</span>
+                    </div>
+                    <div class="flex items-center justify-between p-2.5 rounded-xl bg-slate-900 border border-slate-800 print:bg-white print:border-slate-300">
+                        <span class="text-slate-300 print:text-slate-700">4. Konsistensi Performa Ujian</span>
+                        <span class="font-bold text-amber-400 print:text-amber-800">{{ data.radar_scores[3] }} / 100</span>
+                    </div>
+                    <div class="flex items-center justify-between p-2.5 rounded-xl bg-slate-900 border border-slate-800 print:bg-white print:border-slate-300">
+                        <span class="text-slate-300 print:text-slate-700">5. Ketahanan Mental Ujian</span>
+                        <span class="font-bold text-rose-400 print:text-rose-800">{{ data.radar_scores[4] }} / 100</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 3: Analisis Karakter Pembelajaran MBTI & Psikologi -->
+        <div class="space-y-3 mb-8">
+            <h2 class="text-base font-bold text-white font-heading flex items-center gap-2 border-b border-slate-800 pb-2 print:text-black print:border-slate-300">
+                <i class="bi bi-person-badge-fill text-amber-400"></i> II. Analisis Karakter MBTI & Psikologi Belajar
+            </h2>
+            <div class="p-4 rounded-2xl bg-amber-950/20 border border-amber-500/30 text-xs md:text-sm leading-relaxed text-amber-100 font-sans space-y-2 print:bg-slate-50 print:text-black print:border-slate-300">
+                <div class="font-bold font-mono text-amber-300 print:text-amber-800">
+                    Tipe Karakter: {{ data.psychological_profile.mbti_type }} - {{ data.psychological_profile.mbti_title }}
+                </div>
+                <p>{{ report.ai_mbti_analysis|nl2br }}</p>
+            </div>
+        </div>
+
+        <!-- Section 4: Kekuatan, Kelemahan & Rekomendasi Pendampingan -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            <!-- Kekuatan & Potensi -->
+            <div class="p-5 rounded-2xl bg-emerald-950/20 border border-emerald-500/30 space-y-2 print:bg-slate-50 print:border-slate-300">
+                <h3 class="text-xs font-bold text-emerald-300 uppercase tracking-wider font-heading flex items-center gap-1.5 print:text-emerald-800">
+                    <i class="bi bi-shield-check text-sm"></i> Kekuatan & Potensi Unggul
+                </h3>
+                <div class="text-xs text-emerald-100 font-sans leading-relaxed print:text-black">
+                    {{ report.ai_strengths_detail|nl2br }}
+                </div>
+            </div>
+
+            <!-- Kelemahan & Remedial -->
+            <div class="p-5 rounded-2xl bg-rose-950/20 border border-rose-500/30 space-y-2 print:bg-slate-50 print:border-slate-300">
+                <h3 class="text-xs font-bold text-rose-300 uppercase tracking-wider font-heading flex items-center gap-1.5 print:text-rose-800">
+                    <i class="bi bi-exclamation-triangle-fill text-sm"></i> Kelemahan & Fokus Remedial
+                </h3>
+                <div class="text-xs text-rose-100 font-sans leading-relaxed print:text-black">
+                    {{ report.ai_weaknesses_detail|nl2br }}
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 5: Rekomendasi Praktis Orang Tua / Wali Murid -->
+        <div class="space-y-3 mb-10">
+            <h2 class="text-base font-bold text-white font-heading flex items-center gap-2 border-b border-slate-800 pb-2 print:text-black print:border-slate-300">
+                <i class="bi bi-lightbulb-fill text-purple-400"></i> III. Rekomendasi Pendampingan untuk Wali Murid & Guru
+            </h2>
+            <div class="p-4 rounded-2xl bg-purple-950/20 border border-purple-500/30 text-xs md:text-sm leading-relaxed text-purple-100 font-sans print:bg-slate-50 print:text-black print:border-slate-300">
+                {{ report.ai_recommendation|nl2br }}
+            </div>
+        </div>
+
+        <!-- Footer & Lembar Tanda Tangan -->
+        <div class="pt-8 border-t border-slate-800 flex justify-between items-end font-mono text-xs text-slate-400 print:text-black print:border-slate-300">
+            <div>
+                <p>Verifikasi Digital Quorra Space LMS</p>
+                <p class="text-[10px] text-slate-500 print:text-slate-600">Dokumen sah diterbitkan secara otomatis oleh AI Diagnostic Engine</p>
+            </div>
+
+            <div class="text-center min-w-[180px]">
+                <p class="mb-12">Instruktur / Guru Pengampu,</p>
+                <p class="font-bold text-white underline font-heading print:text-black">{{ report.created_by.username }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Chart.js Library -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const ctx = document.getElementById('reportRadarChart').getContext('2d');
+    const radarData = {{ data.radar_scores|tojson }};
+
+    new Chart(ctx, {
+        type: 'radar',
+        data: {
+            labels: ['Pemahaman', 'Ketelitian', 'Kecepatan', 'Konsistensi', 'Ketahanan'],
+            datasets: [{
+                label: 'Skor Potensi',
+                data: radarData,
+                backgroundColor: 'rgba(168, 85, 247, 0.25)',
+                borderColor: '#a855f7',
+                pointBackgroundColor: '#38bdf8',
+                pointBorderColor: '#fff',
+                pointHoverBackgroundColor: '#fff',
+                pointHoverBorderColor: '#38bdf8',
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                r: {
+                    angleLines: { color: 'rgba(255, 255, 255, 0.15)' },
+                    grid: { color: 'rgba(255, 255, 255, 0.15)' },
+                    pointLabels: {
+                        color: '#94a3b8',
+                        font: { size: 10, family: 'monospace' }
+                    },
+                    ticks: {
+                        backdropColor: 'transparent',
+                        color: '#64748b',
+                        stepSize: 20
+                    },
+                    suggestedMin: 0,
+                    suggestedMax: 100
+                }
+            },
+            plugins: {
+                legend: { display: false }
+            }
+        }
+    });
+});
+
+function copyShareLink() {
+    const publicUrl = window.location.href;
+    navigator.clipboard.writeText(publicUrl).then(() => {
+        const btn = document.getElementById('btnCopyLink');
+        btn.innerHTML = '<i class="bi bi-check2-circle text-sm"></i> Link Berhasil Disalin!';
+        btn.className = 'bg-emerald-600 text-white px-3.5 py-2 rounded-xl text-xs font-bold font-heading flex items-center justify-center gap-1.5 shadow-md flex-1 sm:flex-none';
+        setTimeout(() => {
+            btn.innerHTML = '<i class="bi bi-share-fill text-sm"></i> Salin Link Wali Murid';
+            btn.className = 'btn-space-cyan px-3.5 py-2 rounded-xl text-xs font-bold font-heading flex items-center justify-center gap-1.5 shadow-md flex-1 sm:flex-none';
+        }, 3000);
+    });
+}
+</script>
+{% endblock %}

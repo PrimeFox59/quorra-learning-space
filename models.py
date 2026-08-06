@@ -241,6 +241,32 @@ class PublicActivity(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
 
+class StudentReport(db.Model):
+    __tablename__ = 'student_reports'
+
+    id = db.Column(db.Integer, primary_key=True)
+    report_token = db.Column(db.String(64), unique=True, nullable=False)
+    student_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    class_id = db.Column(db.Integer, db.ForeignKey('classes.id'), nullable=False)
+    created_by_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    
+    # Text AI Narrative
+    ai_narrative_summary = db.Column(db.Text, nullable=False)
+    ai_strengths_detail = db.Column(db.Text, nullable=True)
+    ai_weaknesses_detail = db.Column(db.Text, nullable=True)
+    ai_mbti_analysis = db.Column(db.Text, nullable=True)
+    ai_recommendation = db.Column(db.Text, nullable=True)
+    
+    # Saved Snapshot Data (JSON)
+    metrics_json = db.Column(db.Text, nullable=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    student = db.relationship('User', foreign_keys=[student_id])
+    class_obj = db.relationship('Class', foreign_keys=[class_id])
+    created_by = db.relationship('User', foreign_keys=[created_by_id])
+
+
+
 def log_public_activity(event_type, title, message, icon_class='bi-bell-fill', badge_color='cyan'):
     try:
         activity = PublicActivity(

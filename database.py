@@ -1,6 +1,6 @@
 import random
 import string
-from models import db, User, Workspace, Class, ClassEnrollment, Quiz, Question, Option, Badge, UserBadge, QuizAttempt, SystemConfig, LandingTeacher, LandingStudent, LandingFAQ
+from models import db, User, Workspace, Class, ClassEnrollment, Quiz, Question, Option, Badge, UserBadge, QuizAttempt, SystemConfig, LandingTeacher, LandingStudent, LandingFAQ, StudentReport
 
 from sqlalchemy import text
 

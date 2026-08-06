@@ -1002,6 +1002,10 @@ def calculate_student_analytics(student, class_id):
     }
 
 
+import uuid
+import json
+from models import db, Workspace, Class, Quiz, Question, Option, QuizAttempt, StudentAnswer, ClassEnrollment, User, SystemConfig, StudentReport, log_public_activity
+
 @teacher_bp.route('/student/analysis/<int:class_id>/<int:student_id>')
 @login_required
 @teacher_required
@@ -1011,11 +1015,166 @@ def student_analysis_detail(class_id, student_id):
     
     analytics_data = calculate_student_analytics(student, class_id)
 
+    # Cek apakah sudah ada rapor yang pernah digenerate untuk siswa & kelas ini
+    existing_report = StudentReport.query.filter_by(class_id=c.id, student_id=student.id).order_by(StudentReport.created_at.desc()).first()
+
     return render_template(
         'teacher/student_analysis.html',
         class_obj=c,
         student=student,
-        data=analytics_data
+        data=analytics_data,
+        report=existing_report
     )
+
+
+@teacher_bp.route('/student/generate-report/<int:class_id>/<int:student_id>', methods=['POST'])
+@login_required
+@teacher_required
+def generate_student_report(class_id, student_id):
+    c = Class.query.get_or_404(class_id)
+    student = User.query.get_or_404(student_id)
+    
+    analytics_data = calculate_student_analytics(student, class_id)
+    if not analytics_data.get('has_data'):
+        flash('Siswa belum memiliki data pengerjaan kuis untuk dibuatkan Rapor.', 'warning')
+        return redirect(url_for('teacher.student_analysis_detail', class_id=class_id, student_id=student_id))
+
+    # AI Prompt Synthesis
+    psy = analytics_data['psychological_profile']
+    mbti_str = f"{psy['mbti_type']} ({psy['mbti_title']}) - {psy['mbti_trait']}"
+    radar = analytics_data['radar_scores'] # [Pemahaman, Ketelitian, Kecepatan, Konsistensi, Ketahanan]
+    strengths_str = " | ".join(analytics_data['strengths'])
+    weaknesses_str = " | ".join(analytics_data['weaknesses'])
+    recs_str = " | ".join(analytics_data['recommendations'])
+
+    prompt = f"""
+Bertindaklah sebagai Pakar Psikologi Pendidikan dan Konsultan Pembelajaran Sains/Teknologi Senior.
+Susun Rapor Akademik & Karakter Pembelajaran Resmi untuk Wali Murid berdasarkan data performa siswa berikut:
+
+--- DATA SISWA ---
+Nama Siswa: {student.username} (Level {student.level} - {student.rank_title})
+Kelas: {c.name} ({c.subject})
+Rata-rata Nilai Evaluasi: {analytics_data['avg_score']} / 100 (Total Percobaan: {analytics_data['total_attempts']})
+
+--- METRIK GRAFIK RADAR KEMAMPUAN (0-100) ---
+1. Pemahaman Konsep: {radar[0]}
+2. Ketelitian Detail: {radar[1]}
+3. Kecepatan Respon: {radar[2]}
+4. Konsistensi Performa: {radar[3]}
+5. Ketahanan Ujian: {radar[4]}
+
+--- PROFIL PSIKOLOGIS & MBTI ---
+Tipe Karakter MBTI: {mbti_str}
+Indikator Psikologi: Ketahanan Mental ({psy['psy_resilience']}%), Kedalaman Fokus ({psy['psy_focus_depth']}%), Toleransi Risiko ({psy['psy_risk_tolerance']}%)
+
+--- POTENSI & KELEMAHAN ---
+Kekuatan & Potensi Utama: {strengths_str}
+Kelemahan & Area Remedial: {weaknesses_str}
+Rekomendasi Strategi Belajar: {recs_str}
+
+--- INSTRUKSI OUTPUT ---
+Hasilkan respons JSON valid tanpa markdown formatting tambahan dengan struktur persis seperti berikut:
+{{
+  "narrative_summary": "Tuliskan 2-3 paragraf narasi ringkasan performa akademik dan perkembangan karakter siswa secara profesional, hangat, serta memberikan motivasi positif untuk orang tua/wali murid.",
+  "strengths_detail": "Penjelasan mendalam mengenai keunggulan, minat, dan potensi bakat unik siswa.",
+  "weaknesses_detail": "Analisis konstruktif tentang area yang membutuhkan pendampingan, remedial, atau latihan ekstra di rumah.",
+  "mbti_analysis": "Uraian komprehensif bagaimana tipe karakter MBTI siswa mempengaruhi gaya belajarnya serta panduan cara membimbing siswa dengan tipe kepribadian ini.",
+  "recommendation": "Langkah-langkah konkret & rekomendasi praktis untuk orang tua/wali murid serta guru."
+}}
+"""
+
+    # Panggil Gemini API
+    ai_generated = False
+    narrative_summary = ""
+    strengths_detail = ""
+    weaknesses_detail = ""
+    mbti_analysis = ""
+    recommendation = ""
+
+    api_key_cfg = SystemConfig.query.filter_by(key='gemini_api_key').first()
+    model_cfg = SystemConfig.query.filter_by(key='gemini_model').first()
+    api_key = api_key_cfg.value.strip() if api_key_cfg and api_key_cfg.value else ""
+    model_name = model_cfg.value.strip() if model_cfg and model_cfg.value else "gemini-2.5-flash"
+
+    if api_key:
+        import urllib.request, json
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/{model_name}:generateContent?key={api_key}"
+        payload = {"contents": [{"parts": [{"text": prompt}]}]}
+        data_bytes = json.dumps(payload).encode('utf-8')
+        req = urllib.request.Request(url, data=data_bytes, headers={'Content-Type': 'application/json'})
+        
+        try:
+            with urllib.request.urlopen(req, timeout=35) as res:
+                res_json = json.loads(res.read().decode('utf-8'))
+                raw_text = res_json['candidates'][0]['content']['parts'][0]['text'].strip()
+                if raw_text.startswith("```json"):
+                    raw_text = raw_text[7:]
+                if raw_text.startswith("```"):
+                    raw_text = raw_text[3:]
+                if raw_text.endswith("```"):
+                    raw_text = raw_text[:-3]
+                
+                parsed_res = json.loads(raw_text.strip())
+                narrative_summary = parsed_res.get('narrative_summary', '')
+                strengths_detail = parsed_res.get('strengths_detail', '')
+                weaknesses_detail = parsed_res.get('weaknesses_detail', '')
+                mbti_analysis = parsed_res.get('mbti_analysis', '')
+                recommendation = parsed_res.get('recommendation', '')
+                ai_generated = True
+        except Exception as err:
+            print("Notice: AI Report generation fallback triggered:", err)
+
+    if not ai_generated:
+        # Fallback Algorithmic Synthesis
+        narrative_summary = (
+            f"Siswa {student.username} menunjukkan progres belajar yang sangat positif di kelas {c.name}. "
+            f"Dengan perolehan rata-rata nilai {analytics_data['avg_score']}/100 dari total {analytics_data['total_attempts']} kali evaluasi, "
+            f"siswa memperlihatkan profil kepribadian {psy['mbti_type']} ({psy['mbti_title']}) yang {psy['mbti_trait'].lower()} "
+            f"Kecepatan dan ketelitian belajar siswa berada pada tingkat yang memuaskan dan berpotensi untuk ditingkatkan lebih jauh."
+        )
+        strengths_detail = "\n".join([f"• {s}" for s in analytics_data['strengths']])
+        weaknesses_detail = "\n".join([f"• {w}" for w in analytics_data['weaknesses']])
+        mbti_analysis = (
+            f"Sebagai seorang {psy['mbti_title']} ({psy['mbti_type']}), siswa memiliki karakteristik belajar unik. "
+            f"Anak cenderung merespons tugas pembelajaran dengan ketahanan mental sebesar {psy['psy_resilience']}% "
+            f"dan kedalaman fokus {psy['psy_focus_depth']}%. Pendampingan berulang secara terstruktur sangat direkomendasikan."
+        )
+        recommendation = "\n".join([f"• {r}" for r in analytics_data['recommendations']])
+
+    # Simpan Rapor ke DB
+    report_token = str(uuid.uuid4())
+    report = StudentReport(
+        report_token=report_token,
+        student_id=student.id,
+        class_id=c.id,
+        created_by_id=current_user.id,
+        ai_narrative_summary=narrative_summary,
+        ai_strengths_detail=strengths_detail,
+        ai_weaknesses_detail=weaknesses_detail,
+        ai_mbti_analysis=mbti_analysis,
+        ai_recommendation=recommendation,
+        metrics_json=json.dumps(analytics_data)
+    )
+    db.session.add(report)
+    db.session.commit()
+
+    flash('Rapor Diagnostik AI & Potensi Siswa berhasil digenerate!', 'success')
+    return redirect(url_for('teacher.view_report_detail', report_token=report_token))
+
+
+@teacher_bp.route('/student/report/<string:report_token>')
+def view_report_detail(report_token):
+    report = StudentReport.query.filter_by(report_token=report_token).first_or_404()
+    metrics_data = json.loads(report.metrics_json) if report.metrics_json else calculate_student_analytics(report.student, report.class_id)
+    
+    return render_template(
+        'teacher/report_view.html',
+        report=report,
+        student=report.student,
+        class_obj=report.class_obj,
+        data=metrics_data,
+        is_public=not current_user.is_authenticated or current_user.role not in ['GURU', 'SUPERUSER']
+    )
+
 
 

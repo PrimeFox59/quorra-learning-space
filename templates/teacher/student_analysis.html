@@ -35,7 +35,21 @@
             </div>
         </div>
 
-        <div class="flex items-center gap-3 relative z-10">
+        <div class="flex flex-wrap items-center gap-3 relative z-10">
+            {% if report %}
+            <a href="{{ url_for('teacher.view_report_detail', report_token=report.report_token) }}" class="btn-space-cyan px-4 py-2.5 rounded-xl text-xs font-bold font-heading flex items-center justify-center gap-1.5 shadow-md">
+                <i class="bi bi-file-earmark-text-fill text-sm"></i> Lihat Rapor AI Terbitan
+            </a>
+            {% endif %}
+
+            {% if data.has_data %}
+            <form action="{{ url_for('teacher.generate_student_report', class_id=class_obj.id, student_id=student.id) }}" method="POST">
+                <button type="submit" class="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white px-4 py-2.5 rounded-xl text-xs font-bold font-heading flex items-center justify-center gap-1.5 shadow-lg shadow-purple-500/30 transition-all border border-purple-400/40">
+                    <i class="bi bi-magic text-sm"></i> {% if report %}Regenerate Rapor AI{% else %}Generate Rapor AI Siswa{% endif %}
+                </button>
+            </form>
+            {% endif %}
+
             <a href="{{ url_for('teacher.class_analytics', class_id=class_obj.id) }}" class="btn-space-purple px-4 py-2.5 rounded-xl text-xs font-bold font-heading flex items-center justify-center gap-1.5 shadow-md">
                 <i class="bi bi-arrow-left text-sm"></i> Kembali ke Nilai Kelas
             </a>
