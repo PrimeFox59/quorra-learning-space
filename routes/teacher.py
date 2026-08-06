@@ -698,12 +698,21 @@ def view_attempt_detail(attempt_id):
         selected_option = ans.selected_option if ans else None
         correct_option = next((opt for opt in q.options.all() if opt.is_correct), None)
         
+        # Jika pengerjaan kuis dilakukan sebelum fitur StudentAnswer (skor sempurna/100%), perhitungkan sebagai kunci jawaban
+        if not ans and attempt.score == 100:
+            selected_option = correct_option
+            is_corr = True
+            is_ans = True
+        else:
+            is_corr = ans.is_correct if ans else False
+            is_ans = selected_option is not None
+
         detailed_results.append({
             'question': q,
             'selected_option': selected_option,
             'correct_option': correct_option,
-            'is_correct': ans.is_correct if ans else False,
-            'is_answered': selected_option is not None
+            'is_correct': is_corr,
+            'is_answered': is_ans
         })
 
     return render_template(
@@ -713,6 +722,7 @@ def view_attempt_detail(attempt_id):
         student=attempt.student,
         detailed_results=detailed_results
     )
+
 
 
 def calculate_student_analytics(student, class_id):
