@@ -407,6 +407,10 @@
                                 <label class="block text-[10px] font-mono text-slate-300 uppercase mb-1">Teks Testimoni</label>
                                 <textarea name="testimonial" rows="2" required class="w-full px-3 py-1.5 bg-slate-950 border border-slate-700 rounded-lg text-slate-100">{{ s.testimonial }}</textarea>
                             </div>
+                            <div>
+                                <label class="block text-[10px] font-mono text-slate-300 uppercase mb-1">Ubah Foto Profile (Opsional)</label>
+                                <input type="file" name="photo" accept="image/*" class="w-full text-[10px] text-slate-400">
+                            </div>
                             <div class="flex justify-end gap-2 pt-2">
                                 <button type="button" onclick="document.getElementById('editStudentModal_{{ s.id }}').classList.add('hidden')" class="px-3 py-1 rounded text-slate-400">Batal</button>
                                 <button type="submit" class="btn-space-gold px-4 py-1.5 rounded-lg font-bold">Simpan</button>

@@ -234,7 +234,7 @@ def add_cms_student():
     photo_path = "uploads/landing/student_arya.png" # default fallback
 
     if photo and photo.filename:
-        filename = secure_filename(f"student_{int(os.times().system)}_" + photo.filename)
+        filename = secure_filename(f"student_{int(datetime.now().timestamp())}_" + photo.filename)
         upload_dir = os.path.join(current_app.static_folder, 'uploads', 'landing')
         os.makedirs(upload_dir, exist_ok=True)
         photo.save(os.path.join(upload_dir, filename))
