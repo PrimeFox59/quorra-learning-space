@@ -498,6 +498,35 @@ def delete_question(question_id):
     flash('Soal berhasil dihapus.', 'info')
     return redirect(url_for('teacher.quiz_builder', quiz_id=quiz_id))
 
+@teacher_bp.route('/quiz/edit/<int:quiz_id>', methods=['POST'])
+@login_required
+@teacher_required
+def edit_quiz(quiz_id):
+    quiz = Quiz.query.get_or_404(quiz_id)
+    title = request.form.get('title')
+    description = request.form.get('description')
+    quiz_type = request.form.get('quiz_type', 'KUIS')
+    time_limit_minutes = int(request.form.get('time_limit_minutes', 0))
+    max_attempts = int(request.form.get('max_attempts', 1))
+    exp_reward = int(request.form.get('exp_reward', 50))
+
+    if title:
+        quiz.title = title
+        quiz.description = description
+        quiz.quiz_type = quiz_type
+        quiz.time_limit_seconds = time_limit_minutes * 60
+        quiz.max_attempts = max_attempts
+        quiz.exp_reward = exp_reward
+        db.session.commit()
+        flash(f'Kuis/Quest "{title}" berhasil diperbarui!', 'success')
+    else:
+        flash('Judul kuis tidak boleh kosong.', 'danger')
+
+    redirect_to = request.form.get('redirect_to', 'class_detail')
+    if redirect_to == 'quiz_builder':
+        return redirect(url_for('teacher.quiz_builder', quiz_id=quiz.id))
+    return redirect(url_for('teacher.class_detail', class_id=quiz.class_id))
+
 @teacher_bp.route('/quiz/delete/<int:quiz_id>', methods=['POST'])
 @login_required
 @teacher_required
@@ -508,6 +537,7 @@ def delete_quiz(quiz_id):
     db.session.commit()
     flash('Quiz/Quest berhasil dihapus.', 'info')
     return redirect(url_for('teacher.class_detail', class_id=class_id))
+
 
 @teacher_bp.route('/analytics/class/<int:class_id>')
 @login_required
