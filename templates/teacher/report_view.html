@@ -154,10 +154,78 @@
             </div>
         </div>
 
-        <!-- Section 5: Rekomendasi Praktis Orang Tua / Wali Murid -->
+        <!-- Section 5: Tabel Rekapitulasi Hasil Kuis & Ujian yang Dikerjakan -->
+        <div class="space-y-3 mb-8">
+            <h2 class="text-base font-bold text-white font-heading flex items-center gap-2 border-b border-slate-800 pb-2 print:text-black print:border-slate-300">
+                <i class="bi bi-[#38bdf8] bi-journal-check text-sky-400"></i> III. Rekapitulasi Hasil Kuis & Ujian Siswa
+            </h2>
+            <div class="overflow-x-auto rounded-2xl border border-slate-800 bg-slate-900/60 print:bg-white print:border-slate-300">
+                <table class="w-full text-left font-mono text-xs">
+                    <thead class="bg-slate-900 border-b border-slate-800 text-slate-400 uppercase text-[10px] print:bg-slate-100 print:text-black print:border-slate-300">
+                        <tr>
+                            <th class="py-3 px-4">#</th>
+                            <th class="py-3 px-4">Judul Kuis / Ujian</th>
+                            <th class="py-3 px-4">Tipe</th>
+                            <th class="py-3 px-4 text-center">Percobaan</th>
+                            <th class="py-3 px-4 text-right">Skor Terbaik</th>
+                            <th class="py-3 px-4 text-right">Skor Terakhir</th>
+                            <th class="py-3 px-4 text-center">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-800/80 print:divide-slate-200">
+                        {% if data.quiz_breakdown %}
+                            {% for qb in data.quiz_breakdown %}
+                            <tr class="hover:bg-slate-900/40 print:hover:bg-transparent">
+                                <td class="py-3 px-4 text-slate-500 font-bold print:text-black">{{ loop.index }}</td>
+                                <td class="py-3 px-4 font-bold text-white font-heading print:text-black">{{ qb.quiz_title }}</td>
+                                <td class="py-3 px-4">
+                                    <span class="px-2 py-0.5 rounded text-[9px] font-bold uppercase border
+                                        {% if qb.quiz_type == 'UJIAN' %} bg-rose-950/80 border-rose-500/50 text-rose-300 print:bg-rose-100 print:text-rose-800
+                                        {% elif qb.quiz_type == 'QUEST' %} bg-purple-950/80 border-purple-500/50 text-purple-300 print:bg-purple-100 print:text-purple-800
+                                        {% else %} bg-cyan-950/80 border-cyan-500/50 text-cyan-300 print:bg-cyan-100 print:text-cyan-800 {% endif %}">
+                                        {{ qb.quiz_type }}
+                                    </span>
+                                </td>
+                                <td class="py-3 px-4 text-center text-slate-300 print:text-black">{{ qb.attempt_count }}x</td>
+                                <td class="py-3 px-4 text-right font-bold {% if qb.best_score and qb.best_score >= 80 %}text-emerald-400 print:text-emerald-700{% elif qb.best_score and qb.best_score >= 60 %}text-sky-400 print:text-sky-700{% elif qb.best_score %}text-rose-400 print:text-rose-700{% else %}text-slate-500{% endif %}">
+                                    {% if qb.best_score is not none %}{{ qb.best_score }} / 100{% else %}-{% endif %}
+                                </td>
+                                <td class="py-3 px-4 text-right font-bold text-slate-300 print:text-black">
+                                    {% if qb.latest_score is not none %}{{ qb.latest_score }} / 100{% else %}-{% endif %}
+                                </td>
+                                <td class="py-3 px-4 text-center">
+                                    {% if qb.attempt_count > 0 %}
+                                        {% if qb.best_score and qb.best_score >= 60 %}
+                                        <span class="px-2 py-0.5 rounded bg-emerald-950/80 border border-emerald-500/40 text-emerald-300 text-[10px] font-bold print:bg-emerald-100 print:text-emerald-800">
+                                            LULUS
+                                        </span>
+                                        {% else %}
+                                        <span class="px-2 py-0.5 rounded bg-rose-950/80 border border-rose-500/40 text-rose-300 text-[10px] font-bold print:bg-rose-100 print:text-rose-800">
+                                            REMEDIAL
+                                        </span>
+                                        {% endif %}
+                                    {% else %}
+                                    <span class="px-2 py-0.5 rounded bg-slate-800 text-slate-400 text-[10px] print:bg-slate-200 print:text-slate-700">
+                                        BELUM ADA
+                                    </span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="7" class="py-4 text-center text-slate-500 print:text-black">Belum ada riwayat kuis yang dikerjakan.</td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Section 6: Rekomendasi Praktis Orang Tua / Wali Murid -->
         <div class="space-y-3 mb-10">
             <h2 class="text-base font-bold text-white font-heading flex items-center gap-2 border-b border-slate-800 pb-2 print:text-black print:border-slate-300">
-                <i class="bi bi-lightbulb-fill text-purple-400"></i> III. Rekomendasi Pendampingan untuk Wali Murid & Guru
+                <i class="bi bi-lightbulb-fill text-purple-400"></i> IV. Rekomendasi Pendampingan untuk Wali Murid & Guru
             </h2>
             <div class="p-4 rounded-2xl bg-purple-950/20 border border-purple-500/30 text-xs md:text-sm leading-relaxed text-purple-100 font-sans print:bg-slate-50 print:text-black print:border-slate-300">
                 {{ report.ai_recommendation|nl2br }}
