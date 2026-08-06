@@ -350,4 +350,77 @@ h1, h2, h3, h4, h5, h6, .font-heading {
   box-shadow: 0 20px 40px -15px rgba(0, 240, 255, 0.25);
 }
 
+/* ========================================== */
+/* DIMENSION WARP TUNNEL INTRO OVERLAY        */
+/* ========================================== */
+#warp-tunnel-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: radial-gradient(circle at center, rgba(0, 240, 255, 0.15) 0%, rgba(7, 10, 19, 0.98) 70%, #070a13 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  pointer-events: none;
+  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+#warp-tunnel-overlay.fade-out {
+  opacity: 0;
+}
+
+/* Tunnel Rings Zoom Animation */
+.warp-ring {
+  position: absolute;
+  border-radius: 50%;
+  border: 2px solid rgba(0, 240, 255, 0.4);
+  box-shadow: 0 0 30px rgba(0, 240, 255, 0.3), inset 0 0 30px rgba(168, 85, 247, 0.3);
+  animation: warpTunnelZoom 1.4s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+  opacity: 0;
+}
+
+@keyframes warpTunnelZoom {
+  0% {
+    width: 20px;
+    height: 20px;
+    opacity: 0.9;
+    transform: scale(1) rotate(0deg);
+    border-color: #00f0ff;
+  }
+  50% {
+    opacity: 0.6;
+    border-color: #a855f7;
+  }
+  100% {
+    width: 140vw;
+    height: 140vw;
+    opacity: 0;
+    transform: scale(2.5) rotate(180deg);
+    border-color: #fbbf24;
+  }
+}
+
+/* Page Distortion Zoom Effect */
+body.warp-distortion-active {
+  animation: bodyDistortEntrance 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes bodyDistortEntrance {
+  0% {
+    filter: blur(12px) contrast(180%) hue-rotate(90deg);
+    transform: scale(1.12);
+  }
+  60% {
+    filter: blur(4px) contrast(120%) hue-rotate(20deg);
+    transform: scale(1.02);
+  }
+  100% {
+    filter: blur(0) contrast(100%) hue-rotate(0deg);
+    transform: scale(1);
+  }
+}
+
+
 
