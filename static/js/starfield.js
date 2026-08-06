@@ -14,31 +14,42 @@ document.addEventListener('DOMContentLoaded', () => {
         height = canvas.height = window.innerHeight;
     });
 
-    let isWarping = true;
-    let warpSpeedMultiplier = 15; // Inisialisasi kecepatan meluncur yang halus & stabil
+    // Pengecekan Halaman: Efek Distorsi hanya berlaku di Landing Page utama & Halaman Login saja
+    const pathname = window.location.pathname.toLowerCase();
+    const shouldRunWarp = (
+        pathname === '/' || 
+        pathname === '/quorra' || 
+        pathname === '/quorra/' || 
+        pathname.includes('/login')
+    );
+
+    let isWarping = shouldRunWarp;
+    let warpSpeedMultiplier = shouldRunWarp ? 15 : 1;
     
-    // Perhalus deselerasi bintang menggunakan exponential decay function (Smooth Easing Out)
-    setTimeout(() => {
-        let startTime = performance.now();
-        const duration = 1200; // 1.2 detik transisi ultra mulus
+    if (shouldRunWarp) {
+        // Perhalus deselerasi bintang menggunakan exponential decay function (Smooth Easing Out)
+        setTimeout(() => {
+            let startTime = performance.now();
+            const duration = 1200; // 1.2 detik transisi ultra mulus
 
-        function easeOutDecelerate(now) {
-            let elapsed = now - startTime;
-            let progress = Math.min(1, elapsed / duration);
-            
-            // Cubic ease-out calculation: 1 - pow(1 - progress, 3)
-            let easeFactor = 1 - Math.pow(1 - progress, 3);
-            warpSpeedMultiplier = 15 * (1 - easeFactor) + 1;
+            function easeOutDecelerate(now) {
+                let elapsed = now - startTime;
+                let progress = Math.min(1, elapsed / duration);
+                
+                // Cubic ease-out calculation: 1 - pow(1 - progress, 3)
+                let easeFactor = 1 - Math.pow(1 - progress, 3);
+                warpSpeedMultiplier = 15 * (1 - easeFactor) + 1;
 
-            if (progress < 1) {
-                requestAnimationFrame(easeOutDecelerate);
-            } else {
-                warpSpeedMultiplier = 1;
-                isWarping = false;
+                if (progress < 1) {
+                    requestAnimationFrame(easeOutDecelerate);
+                } else {
+                    warpSpeedMultiplier = 1;
+                    isWarping = false;
+                }
             }
-        }
-        requestAnimationFrame(easeOutDecelerate);
-    }, 300);
+            requestAnimationFrame(easeOutDecelerate);
+        }, 300);
+    }
 
     const stars = [];
     const numStars = 220;
@@ -104,29 +115,31 @@ document.addEventListener('DOMContentLoaded', () => {
 
     render();
 
-    // Spawn Warp Tunnel Overlay Element dynamically
-    const overlay = document.createElement('div');
-    overlay.id = 'warp-tunnel-overlay';
-    overlay.innerHTML = `
-        <div class="warp-ring" style="animation-delay: 0s;"></div>
-        <div class="warp-ring" style="animation-delay: 0.3s;"></div>
-        <div class="warp-ring" style="animation-delay: 0.6s;"></div>
-        <div class="warp-ring" style="animation-delay: 0.9s;"></div>
-        <div class="relative z-10 text-center space-y-2 font-mono">
-            <div class="w-12 h-12 rounded-2xl bg-cyan-950 border border-cyan-400 text-cyan-300 mx-auto flex items-center justify-center text-2xl shadow-lg shadow-cyan-500/50 animate-bounce">
-                <i class="bi bi-rocket-takeoff-fill"></i>
+    // Spawn Warp Tunnel Overlay & Distortion HANYA jika berada di Landing Page atau Login
+    if (shouldRunWarp) {
+        const overlay = document.createElement('div');
+        overlay.id = 'warp-tunnel-overlay';
+        overlay.innerHTML = `
+            <div class="warp-ring" style="animation-delay: 0s;"></div>
+            <div class="warp-ring" style="animation-delay: 0.3s;"></div>
+            <div class="warp-ring" style="animation-delay: 0.6s;"></div>
+            <div class="warp-ring" style="animation-delay: 0.9s;"></div>
+            <div class="relative z-10 text-center space-y-2 font-mono">
+                <div class="w-12 h-12 rounded-2xl bg-cyan-950 border border-cyan-400 text-cyan-300 mx-auto flex items-center justify-center text-2xl shadow-lg shadow-cyan-500/50 animate-bounce">
+                    <i class="bi bi-rocket-takeoff-fill"></i>
+                </div>
+                <span class="block text-xs font-black text-cyan-300 uppercase tracking-widest animate-pulse">MEMASUKI LORONG DIMENSI QUORRA SPACE...</span>
             </div>
-            <span class="block text-xs font-black text-cyan-300 uppercase tracking-widest animate-pulse">MEMASUKI LORONG DIMENSI QUORRA SPACE...</span>
-        </div>
-    `;
-    document.body.prepend(overlay);
-    document.body.classList.add('warp-distortion-active');
+        `;
+        document.body.prepend(overlay);
+        document.body.classList.add('warp-distortion-active');
 
-    setTimeout(() => {
-        overlay.classList.add('fade-out');
         setTimeout(() => {
-            overlay.remove();
-            document.body.classList.remove('warp-distortion-active');
-        }, 800);
-    }, 1100);
+            overlay.classList.add('fade-out');
+            setTimeout(() => {
+                overlay.remove();
+                document.body.classList.remove('warp-distortion-active');
+            }, 800);
+        }, 1100);
+    }
 });
