@@ -142,14 +142,21 @@
         </h2>
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
             {% for e in enrollments %}
-            <div class="p-3 rounded-xl bg-slate-900/60 border border-slate-800 flex items-center gap-3">
-                <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-amber-500 to-amber-700 font-black text-slate-950 flex items-center justify-center text-xs font-mono shrink-0 shadow-md">
-                    L{{ e.student.level }}
+            <div class="p-3 rounded-xl bg-slate-900/60 border border-slate-800 flex items-center justify-between gap-3">
+                <div class="flex items-center gap-3 truncate">
+                    <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-amber-500 to-amber-700 font-black text-slate-950 flex items-center justify-center text-xs font-mono shrink-0 shadow-md">
+                        L{{ e.student.level }}
+                    </div>
+                    <div class="truncate">
+                        <div class="font-bold text-xs text-slate-200 font-heading truncate">{{ e.student.username }}</div>
+                        <div class="text-[10px] text-sky-400 font-mono truncate">{{ e.student.rank_title }} • {{ e.student.exp }} EXP</div>
+                    </div>
                 </div>
-                <div class="truncate">
-                    <div class="font-bold text-xs text-slate-200 font-heading truncate">{{ e.student.username }}</div>
-                    <div class="text-[10px] text-sky-400 font-mono truncate">{{ e.student.rank_title }} • {{ e.student.exp }} EXP</div>
-                </div>
+                <a href="{{ url_for('teacher.student_analysis_detail', class_id=class_obj.id, student_id=e.student.id) }}" 
+                   class="px-2 py-1 rounded bg-purple-950 border border-purple-500/50 text-purple-300 hover:bg-purple-900 text-[10px] font-mono font-bold shrink-0 flex items-center gap-1 transition-colors"
+                   title="Lihat Analisis Potensi Murid Ini">
+                    <i class="bi bi-radar"></i> Potensi
+                </a>
             </div>
             {% else %}
             <p class="text-xs text-slate-500 font-mono col-span-3">Belum ada murid yang bergabung dengan kode {{ class_obj.code }}.</p>

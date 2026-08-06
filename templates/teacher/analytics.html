@@ -48,17 +48,47 @@
     </div>
 
     {% if attempts %}
-    <!-- ApexChart: Analytics Chart -->
-    <div class="glass-card p-5 border border-slate-800">
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3">
+    <!-- Side-by-Side Charts Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- ApexChart: Analytics Chart (Bar Chart) -->
+        <div class="glass-card p-5 border border-slate-800 flex flex-col justify-between">
             <div>
-                <h2 class="text-base font-bold text-white flex items-center gap-2">
-                    <i class="bi bi-bar-chart-line text-purple-400"></i> Rata-Rata Nilai per Evaluasi / Kuis
-                </h2>
-                <p class="text-[11px] text-slate-400 mt-0.5">Perbandingan performa rata-rata skor pada setiap materi kuis di kelas ini.</p>
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3">
+                    <div>
+                        <h2 class="text-base font-bold text-white flex items-center gap-2">
+                            <i class="bi bi-bar-chart-line text-purple-400"></i> Rata-Rata Nilai per Evaluasi / Kuis
+                        </h2>
+                        <p class="text-[11px] text-slate-400 mt-0.5">Perbandingan rata-rata skor materi kuis.</p>
+                    </div>
+                </div>
             </div>
+            <div id="teacherAnalyticsChart" class="w-full h-72"></div>
         </div>
-        <div id="teacherAnalyticsChart" class="w-full h-72"></div>
+
+        <!-- ApexChart: Student Timeline Progress Chart (Line Chart) -->
+        <div class="glass-card p-5 border border-slate-800 flex flex-col justify-between">
+            <div>
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3">
+                    <div>
+                        <h2 class="text-base font-bold text-white flex items-center gap-2">
+                            <i class="bi bi-graph-up text-cyan-400"></i> Progress Timeline Nilai per Siswa
+                        </h2>
+                        <p class="text-[11px] text-slate-400 mt-0.5">Tren nilai siswa per percobaan.</p>
+                    </div>
+
+                    <!-- Compact Initial Legend Badges -->
+                    <div class="flex items-center gap-1.5 flex-wrap">
+                        {% for s in student_timeline_analytics %}
+                        <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-lg bg-slate-900/90 border border-slate-800 text-[10px] font-mono font-bold text-slate-200" title="{{ s.name }}">
+                            <span class="w-2 h-2 rounded-full shrink-0" style="background-color: {{ s.color }}; border: 1px solid {{ s.color }};"></span>
+                            <span class="text-white">{{ s.initials }}</span>
+                        </span>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            <div id="studentTimelineChart" class="w-full h-72"></div>
+        </div>
     </div>
 
     <!-- Submissions & Scores Table (Full Screen Fit) -->
@@ -96,12 +126,14 @@
                 <tbody class="divide-y divide-slate-800/60 font-mono text-[11px]">
                     {% for a in attempts|reverse %}
                     <tr class="hover:bg-slate-800/50 transition-colors group">
-                        <td class="py-2 px-2.5 font-bold text-white truncate" title="{{ a.student.username }} (Level {{ a.student.level }})">
+                        <td class="py-2 px-2.5 font-bold text-white truncate" title="Klik untuk Analisis Potensi {{ a.student.username }}">
                             <div class="flex items-center gap-1.5 truncate">
                                 <span class="w-5 h-5 rounded-full bg-slate-900 border border-slate-700 text-[9px] flex items-center justify-center text-amber-400 font-black shrink-0">
                                     L{{ a.student.level }}
                                 </span>
-                                <span class="truncate group-hover:text-purple-300 transition-colors">{{ a.student.username }}</span>
+                                <a href="{{ url_for('teacher.student_analysis_detail', class_id=class_obj.id, student_id=a.student.id) }}" class="truncate group-hover:text-purple-300 hover:underline flex items-center gap-1 text-purple-300 font-bold" title="Lihat Radar Analisis Potensi Murid Ini">
+                                    {{ a.student.username }} <i class="bi bi-diagram-3 text-[10px] text-purple-400"></i>
+                                </a>
                             </div>
                         </td>
                         <td class="py-2 px-2.5 text-slate-200 truncate" title="{{ a.quiz.title }} ({{ a.quiz.quiz_type }})">
@@ -142,11 +174,16 @@
                             {{ a.completed_at.strftime('%d %b %H:%M') }}
                         </td>
                         <td class="py-2 px-2.5 text-center whitespace-nowrap">
-                            <form action="{{ url_for('teacher.delete_attempt', attempt_id=a.id) }}" method="POST" onsubmit="return confirm('Hapus/Reset nilai pengerjaan ke-{{ a.attempt_number }} untuk {{ a.student.username }}?');">
-                                <button type="submit" class="px-2 py-0.5 bg-rose-950 border border-rose-500/50 hover:bg-rose-900 text-rose-300 rounded text-[10px] font-bold inline-flex items-center gap-1 transition-colors" title="Reset / Hapus Nilai Ini">
-                                    <i class="bi bi-arrow-counterclockwise"></i> Reset
-                                </button>
-                            </form>
+                            <div class="flex items-center justify-center gap-1">
+                                <a href="{{ url_for('teacher.view_attempt_detail', attempt_id=a.id) }}" class="p-1.5 bg-cyan-950/90 border border-cyan-500/50 hover:bg-cyan-900 text-cyan-300 rounded-lg text-xs font-bold inline-flex items-center justify-center transition-colors shadow-sm" title="Lihat Lembar Jawaban Murid">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                                <form action="{{ url_for('teacher.delete_attempt', attempt_id=a.id) }}" method="POST" onsubmit="return confirm('Hapus/Reset nilai pengerjaan ke-{{ a.attempt_number }} untuk {{ a.student.username }}?');" class="inline">
+                                    <button type="submit" class="p-1.5 bg-rose-950/90 border border-rose-500/50 hover:bg-rose-900 text-rose-300 rounded-lg text-xs font-bold inline-flex items-center justify-center transition-colors shadow-sm" title="Reset / Hapus Nilai Ini">
+                                        <i class="bi bi-arrow-counterclockwise"></i>
+                                    </button>
+                                </form>
+                            </div>
                         </td>
                     </tr>
                     {% endfor %}
@@ -171,6 +208,105 @@
 {% if attempts %}
 <script>
 document.addEventListener('DOMContentLoaded', () => {
+    // 1. Line Chart Timeline per Siswa (Inisial & Warna)
+    const timelineData = {{ student_timeline_analytics|tojson }};
+    
+    // Tentukan kategori x-axis (Urutan pengerjaan / Submission #1, #2, dst.)
+    let maxAttemptsCount = 0;
+    timelineData.forEach(s => {
+        if (s.attempts.length > maxAttemptsCount) {
+            maxAttemptsCount = s.attempts.length;
+        }
+    });
+
+    const xAxisCategories = Array.from({length: maxAttemptsCount}, (_, i) => `Percobaan #${i + 1}`);
+
+    const seriesData = timelineData.map(s => {
+        return {
+            name: s.initials + ' (' + s.name + ')',
+            data: s.attempts.map(a => a.score)
+        };
+    });
+
+    const studentColors = timelineData.map(s => s.color);
+
+    const timelineOptions = {
+        series: seriesData,
+        chart: {
+            type: 'line',
+            height: 280,
+            toolbar: { show: false },
+            background: 'transparent',
+            zoom: { enabled: false }
+        },
+        colors: studentColors.length > 0 ? studentColors : ['#38bdf8'],
+        stroke: {
+            curve: 'smooth',
+            width: 3
+        },
+        markers: {
+            size: 5,
+            hover: { size: 7 }
+        },
+        xaxis: {
+            categories: xAxisCategories,
+            labels: {
+                style: {
+                    colors: '#94a3b8',
+                    fontSize: '10px',
+                    fontFamily: 'monospace'
+                }
+            },
+            axisBorder: { color: '#334155' }
+        },
+        yaxis: {
+            min: 0,
+            max: 100,
+            labels: {
+                formatter: function (val) { return val + '%'; },
+                style: {
+                    colors: '#94a3b8',
+                    fontSize: '10px',
+                    fontFamily: 'monospace'
+                }
+            }
+        },
+        grid: {
+            borderColor: 'rgba(255, 255, 255, 0.08)',
+            strokeDashArray: 4
+        },
+        legend: {
+            show: true,
+            position: 'top',
+            horizontalAlign: 'right',
+            labels: { colors: '#94a3b8' },
+            fontFamily: 'monospace',
+            fontSize: '11px',
+            markers: { width: 8, height: 8, radius: 12 }
+        },
+        tooltip: {
+            theme: 'dark',
+            custom: function({series, seriesIndex, dataPointIndex, w}) {
+                const sInfo = timelineData[seriesIndex];
+                const attempt = sInfo ? sInfo.attempts[dataPointIndex] : null;
+                if (!attempt) return '';
+                return `<div class="p-2 text-xs font-mono bg-slate-900 border border-slate-700 rounded-lg shadow-xl">
+                    <div class="font-bold text-white mb-1 flex items-center gap-1.5">
+                        <span class="w-2 h-2 rounded-full inline-block" style="background:${sInfo.color}"></span>
+                        ${sInfo.name} (${sInfo.initials})
+                    </div>
+                    <div class="text-slate-300 text-[11px]">Kuis: <span class="text-cyan-400 font-bold">${attempt.quiz_title}</span></div>
+                    <div class="text-slate-300 text-[11px]">Skor: <span class="text-amber-400 font-bold">${attempt.score}/100</span></div>
+                    <div class="text-[10px] text-slate-500 mt-1">${attempt.date}</div>
+                </div>`;
+            }
+        }
+    };
+
+    const timelineChart = new ApexCharts(document.querySelector("#studentTimelineChart"), timelineOptions);
+    timelineChart.render();
+
+    // 2. Bar Chart Rata-Rata Nilai Kuis
     const quizAnalyticsData = {{ quiz_analytics|tojson }};
     const titles = quizAnalyticsData.map(q => q.quiz_title);
     const avgs = quizAnalyticsData.map(q => q.avg_score);

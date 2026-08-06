@@ -1,0 +1,149 @@
+{% extends "base.html" %}
+
+{% block title %}Detail Jawaban: {{ student.username }} - {{ quiz.title }}{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Breadcrumb -->
+    <div class="flex items-center gap-2 text-xs font-mono text-slate-400">
+        <a href="{{ url_for('teacher.dashboard') }}" class="hover:text-cyan-400">Dashboard Guru</a>
+        <span>/</span>
+        <a href="{{ url_for('teacher.class_detail', class_id=quiz.class_id) }}" class="hover:text-cyan-400">{{ quiz.class_obj.name }}</a>
+        <span>/</span>
+        <a href="{{ url_for('teacher.class_analytics', class_id=quiz.class_id) }}" class="hover:text-cyan-400">Monitoring & Nilai</a>
+        <span>/</span>
+        <span class="text-cyan-400 font-bold">Detail Jawaban Siswa</span>
+    </div>
+
+    <!-- Header Summary Card -->
+    <div class="glass-card p-6 border-l-4 border-cyan-400 flex flex-col md:flex-row md:items-center justify-between gap-6 relative overflow-hidden">
+        <div class="relative z-10">
+            <div class="flex items-center gap-2 mb-1">
+                <span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-cyan-950 border border-cyan-500/40 text-cyan-300 uppercase">
+                    {{ quiz.quiz_type }}
+                </span>
+                <span class="text-xs text-slate-500">•</span>
+                <span class="text-xs text-slate-400 font-mono">Percobaan Ke-{{ attempt.attempt_number }}</span>
+            </div>
+            <h1 class="text-xl md:text-2xl font-black text-white font-heading">{{ quiz.title }}</h1>
+            <p class="text-xs text-slate-400 mt-1 font-mono">
+                Astronot: <span class="text-purple-300 font-bold">{{ student.username }}</span> (Level {{ student.level }}) | 
+                Tanggal Pengerjaan: <span class="text-slate-300">{{ attempt.completed_at.strftime('%d %b %Y %H:%M') }}</span>
+            </p>
+        </div>
+
+        <div class="flex items-center gap-4 relative z-10">
+            <div class="p-3.5 rounded-xl bg-slate-950/90 border border-slate-800 text-center min-w-[110px]">
+                <span class="block text-[9px] text-slate-400 font-mono uppercase">SKOR AKHIR</span>
+                <span class="text-2xl font-black font-mono {% if attempt.score >= 80 %}text-emerald-400{% elif attempt.score >= 60 %}text-sky-400{% else %}text-rose-400{% endif %}">
+                    {{ attempt.score }}
+                </span>
+                <span class="text-[9px] text-slate-500 block font-mono">/ 100</span>
+            </div>
+            <div class="p-3.5 rounded-xl bg-slate-950/90 border border-slate-800 text-center min-w-[110px]">
+                <span class="block text-[9px] text-slate-400 font-mono uppercase">BENAR / TOTAL</span>
+                <span class="text-2xl font-black text-amber-400 font-mono">{{ attempt.correct_answers }}/{{ attempt.total_questions }}</span>
+                <span class="text-[9px] text-slate-500 block font-mono">Soal</span>
+            </div>
+            <a href="{{ url_for('teacher.class_analytics', class_id=quiz.class_id) }}" class="btn-space-purple px-4 py-2.5 rounded-xl text-xs font-bold font-heading flex items-center justify-center gap-1.5 shadow-md self-stretch sm:self-auto">
+                <i class="bi bi-arrow-left text-sm"></i> Kembali
+            </a>
+        </div>
+    </div>
+
+    <!-- Question Answers Review List -->
+    <div class="space-y-4">
+        <h2 class="text-lg font-bold text-white font-heading flex items-center gap-2">
+            <i class="bi bi-card-checklist text-cyan-400"></i> Lembar Evaluasi & Analisis Jawaban Per Soal
+        </h2>
+
+        {% for item in detailed_results %}
+        <div class="glass-card p-5 border-l-4 {% if item.is_correct %}border-emerald-500 bg-emerald-950/10{% elif item.is_answered %}border-rose-500 bg-rose-950/10{% else %}border-amber-500 bg-amber-950/10{% endif %} border-y border-r border-slate-800 space-y-3">
+            <div class="flex items-start justify-between gap-3">
+                <div class="flex items-center gap-2">
+                    <span class="w-7 h-7 rounded-lg bg-slate-900 border border-slate-700 font-mono font-bold text-xs flex items-center justify-center text-slate-200">
+                        #{{ loop.index }}
+                    </span>
+                    <span class="text-xs font-mono font-bold text-slate-400">Poin: {{ item.question.points }}</span>
+                </div>
+
+                {% if item.is_correct %}
+                <span class="px-2.5 py-1 rounded-lg text-xs font-mono font-bold bg-emerald-950/90 border border-emerald-500/50 text-emerald-300 flex items-center gap-1">
+                    <i class="bi bi-check-circle-fill text-sm"></i> BENAR
+                </span>
+                {% elif item.is_answered %}
+                <span class="px-2.5 py-1 rounded-lg text-xs font-mono font-bold bg-rose-950/90 border border-rose-500/50 text-rose-300 flex items-center gap-1">
+                    <i class="bi bi-x-circle-fill text-sm"></i> SALAH
+                </span>
+                {% else %}
+                <span class="px-2.5 py-1 rounded-lg text-xs font-mono font-bold bg-amber-950/90 border border-amber-500/50 text-amber-300 flex items-center gap-1">
+                    <i class="bi bi-dash-circle-fill text-sm"></i> TIDAK DIJAWAB
+                </span>
+                {% endif %}
+            </div>
+
+            <!-- Question Prompt Text & Image -->
+            <div class="text-sm font-semibold text-white leading-relaxed font-heading">
+                {{ item.question.question_text }}
+            </div>
+
+            {% if item.question.image_url %}
+            <div class="my-2">
+                <img src="{{ url_for('static', filename=item.question.image_url) }}" alt="Gambar Soal" class="max-h-52 rounded-xl border border-slate-700/80 object-cover">
+            </div>
+            {% endif %}
+
+            <!-- Options Review Grid -->
+            <div class="grid grid-cols-1 gap-2 pt-2">
+                {% for opt in item.question.options.all() %}
+                {% set is_user_selected = item.selected_option and item.selected_option.id == opt.id %}
+                {% set is_key_answer = opt.is_correct %}
+
+                <div class="p-3 rounded-xl border flex items-center justify-between gap-3 text-xs font-mono transition-all
+                    {% if is_user_selected and is_key_answer %}
+                        bg-emerald-950/80 border-emerald-500 text-emerald-200 font-bold shadow-sm shadow-emerald-500/20
+                    {% elif is_user_selected and not is_key_answer %}
+                        bg-rose-950/80 border-rose-500 text-rose-200 font-bold shadow-sm shadow-rose-500/20
+                    {% elif is_key_answer %}
+                        bg-emerald-950/40 border-emerald-500/60 text-emerald-300 font-semibold
+                    {% else %}
+                        bg-slate-950/60 border-slate-800 text-slate-400
+                    {% endif %}">
+                    <div class="flex items-center gap-2.5">
+                        <span class="w-6 h-6 rounded-md bg-slate-900 border border-slate-700 flex items-center justify-center font-bold text-[11px] shrink-0">
+                            {{ opt.option_key }}
+                        </span>
+                        <span>{{ opt.option_text }}</span>
+                    </div>
+
+                    <div class="flex items-center gap-2 shrink-0">
+                        {% if is_user_selected and is_key_answer %}
+                        <span class="px-2 py-0.5 rounded bg-emerald-900 text-emerald-300 text-[10px] font-bold">
+                            <i class="bi bi-person-check-fill mr-1"></i> Jawaban Murid (BENAR)
+                        </span>
+                        {% elif is_user_selected and not is_key_answer %}
+                        <span class="px-2 py-0.5 rounded bg-rose-900 text-rose-300 text-[10px] font-bold">
+                            <i class="bi bi-person-x-fill mr-1"></i> Jawaban Murid (SALAH)
+                        </span>
+                        {% elif is_key_answer %}
+                        <span class="px-2 py-0.5 rounded bg-emerald-900/60 text-emerald-400 text-[10px] font-bold">
+                            <i class="bi bi-key-fill mr-1"></i> Kunci Jawaban Benar
+                        </span>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Explanation / Pembahasan if available -->
+            {% if item.question.explanation %}
+            <div class="mt-3 p-3 rounded-xl bg-purple-950/40 border border-purple-500/30 text-xs font-mono text-purple-200 leading-relaxed">
+                <strong class="text-purple-300 font-heading block mb-0.5"><i class="bi bi-lightbulb-fill text-amber-400"></i> Pembahasan / Penjelasan Guru:</strong>
+                {{ item.question.explanation }}
+            </div>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

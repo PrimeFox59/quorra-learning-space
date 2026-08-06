@@ -1,9 +1,10 @@
 from flask import Blueprint, render_template, redirect, url_for, flash, request, jsonify
 from flask_login import login_required, current_user
-from models import db, User, Class, ClassEnrollment, Quiz, Question, Option, QuizAttempt, Badge, UserBadge
+from models import db, User, Class, ClassEnrollment, Quiz, Question, Option, QuizAttempt, StudentAnswer, Badge, UserBadge
 from datetime import datetime
 
 student_bp = Blueprint('student', __name__, url_prefix='/quorra/student')
+
 
 @student_bp.route('/dashboard')
 @login_required
@@ -121,17 +122,23 @@ def submit_quiz(quiz_id):
     earned_points = 0
     time_taken = int(request.form.get('time_taken_seconds', 0))
 
+    attempts_count = QuizAttempt.query.filter_by(quiz_id=quiz.id, student_id=current_user.id).count() + 1
+
+    # Pre-calculate score & answers
+    answers_to_create = []
     for q in questions:
         selected_option_id = request.form.get(f'question_{q.id}')
-        if selected_option_id:
-            opt = Option.query.get(int(selected_option_id))
+        opt_id = int(selected_option_id) if selected_option_id else None
+        is_corr = False
+        if opt_id:
+            opt = Option.query.get(opt_id)
             if opt and opt.is_correct:
+                is_corr = True
                 correct_count += 1
                 earned_points += q.points
+        answers_to_create.append((q.id, opt_id, is_corr))
 
     score = int((earned_points / total_points) * 100) if total_points > 0 else 0
-    
-    attempts_count = QuizAttempt.query.filter_by(quiz_id=quiz.id, student_id=current_user.id).count() + 1
 
     attempt = QuizAttempt(
         quiz_id=quiz.id,
@@ -143,6 +150,17 @@ def submit_quiz(quiz_id):
         attempt_number=attempts_count
     )
     db.session.add(attempt)
+    db.session.flush() # Mendapatkan attempt.id
+
+    # Simpan jawaban detail per soal
+    for q_id, opt_id, is_corr in answers_to_create:
+        st_ans = StudentAnswer(
+            attempt_id=attempt.id,
+            question_id=q_id,
+            selected_option_id=opt_id,
+            is_correct=is_corr
+        )
+        db.session.add(st_ans)
 
     # Award EXP
     exp_gained = quiz.exp_reward if score >= 60 else int(quiz.exp_reward * (score / 100))
@@ -266,3 +284,21 @@ def check_and_unlock_badges(user, score=None, time_taken=None):
         db.session.commit()
 
     return unlocked_names
+
+
+@student_bp.route('/analytics')
+@login_required
+def analytics():
+    from routes.teacher import calculate_student_analytics
+    enrollment = ClassEnrollment.query.filter_by(student_id=current_user.id).first()
+    if not enrollment:
+        flash('Anda belum terdaftar di kelas manapun.', 'info')
+        return redirect(url_for('student.dashboard'))
+
+    analytics_data = calculate_student_analytics(current_user, enrollment.class_id)
+    return render_template(
+        'student/my_analytics.html',
+        student=current_user,
+        class_obj=enrollment.class_obj,
+        data=analytics_data
+    )

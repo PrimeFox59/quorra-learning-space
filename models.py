@@ -155,6 +155,22 @@ class QuizAttempt(db.Model):
     attempt_number = db.Column(db.Integer, default=1)
     completed_at = db.Column(db.DateTime, default=datetime.utcnow)
 
+    answers = db.relationship('StudentAnswer', backref='attempt', lazy='dynamic', cascade='all, delete-orphan')
+
+
+class StudentAnswer(db.Model):
+    __tablename__ = 'student_answers'
+
+    id = db.Column(db.Integer, primary_key=True)
+    attempt_id = db.Column(db.Integer, db.ForeignKey('quiz_attempts.id'), nullable=False)
+    question_id = db.Column(db.Integer, db.ForeignKey('questions.id'), nullable=False)
+    selected_option_id = db.Column(db.Integer, db.ForeignKey('options.id'), nullable=True)
+    is_correct = db.Column(db.Boolean, default=False)
+
+    question = db.relationship('Question')
+    selected_option = db.relationship('Option')
+
+
 
 class Badge(db.Model):
     __tablename__ = 'badges'

@@ -1,0 +1,229 @@
+{% extends "base.html" %}
+
+{% block title %}Radar Potensi & Analisis Kemampuan Diri - Quorra Space{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Breadcrumb -->
+    <div class="flex items-center gap-2 text-xs font-mono text-slate-400">
+        <a href="{{ url_for('student.dashboard') }}" class="hover:text-cyan-400">Dashboard Murid</a>
+        <span>/</span>
+        <span class="text-cyan-400 font-bold">Radar Potensi Diri</span>
+    </div>
+
+    <!-- Student Header Banner -->
+    <div class="glass-card p-6 border-l-4 border-cyan-400 flex flex-col md:flex-row md:items-center justify-between gap-6 relative overflow-hidden">
+        <div class="absolute -right-10 -bottom-10 w-48 h-48 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="flex items-center gap-4 relative z-10">
+            <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-cyan-500 to-blue-600 font-black text-slate-950 text-2xl flex items-center justify-center font-mono shrink-0 shadow-lg shadow-cyan-500/20">
+                L{{ student.level }}
+            </div>
+            <div>
+                <div class="flex items-center gap-2 mb-1">
+                    <span class="px-2 py-0.5 rounded bg-cyan-950 border border-cyan-500/40 text-[10px] font-mono text-cyan-300 font-bold uppercase">{{ student.rank_title }}</span>
+                    <span class="text-xs text-slate-500">•</span>
+                    <span class="text-xs text-amber-400 font-mono font-bold">{{ student.exp }} EXP</span>
+                </div>
+                <h1 class="text-2xl font-black text-white font-heading">Radar Kemampuan & Potensi Belajar</h1>
+                <p class="text-slate-400 text-xs mt-0.5 font-mono">
+                    Stasiun Pembelajaran Kelas: <span class="text-cyan-300 font-bold">{{ class_obj.name }}</span>
+                </p>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-3 relative z-10">
+            <a href="{{ url_for('student.dashboard') }}" class="btn-space-cyan px-4 py-2.5 rounded-xl text-xs font-bold font-heading flex items-center justify-center gap-1.5 shadow-md">
+                <i class="bi bi-rocket-takeoff text-sm"></i> Kembali ke Mission Control
+            </a>
+        </div>
+    </div>
+
+    {% if not data.has_data %}
+    <div class="glass-card p-10 text-center text-slate-400 border border-slate-800">
+        <i class="bi bi-radar text-4xl text-slate-600 block mb-2"></i>
+        <h3 class="text-base font-bold text-white">Radar Belum Aktif</h3>
+        <p class="text-xs text-slate-500 mt-1 max-w-md mx-auto">
+            Selesaikan minimal 1 kuis atau quest di kelas ini untuk membuka Laporan Radar Potensi & Analisis Gaya Belajar Anda!
+        </p>
+    </div>
+    {% if data.has_data %}
+    <!-- MBTI & Psychological Profile Banner -->
+    <div class="glass-card p-5 border-l-4 border-amber-400 bg-gradient-to-r from-slate-950 via-slate-900 to-cyan-950/40 border border-slate-800 space-y-4">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div class="flex items-start md:items-center gap-4">
+                <div class="w-14 h-14 rounded-2xl bg-amber-500/10 border border-amber-500/40 text-amber-400 flex items-center justify-center text-2xl shrink-0 shadow-lg shadow-amber-500/10">
+                    <i class="bi {{ data.psychological_profile.mbti_icon }}"></i>
+                </div>
+                <div>
+                    <div class="flex items-center gap-2">
+                        <span class="px-2.5 py-0.5 rounded-md bg-amber-500/20 border border-amber-500/40 text-amber-300 font-mono font-black text-xs">
+                            MBTI TYPE: {{ data.psychological_profile.mbti_type }}
+                        </span>
+                        <span class="text-xs text-slate-400 font-mono">• Karakter & Gaya Belajar Anda</span>
+                    </div>
+                    <h2 class="text-lg font-bold text-white font-heading mt-0.5">{{ data.psychological_profile.mbti_title }}</h2>
+                    <p class="text-xs text-slate-300 mt-1 max-w-2xl font-mono leading-relaxed">
+                        "{{ data.psychological_profile.mbti_trait }}"
+                    </p>
+                </div>
+            </div>
+
+            <!-- Psychological Indicators -->
+            <div class="grid grid-cols-3 gap-2 shrink-0 font-mono text-center">
+                <div class="p-2.5 rounded-xl bg-slate-950/80 border border-slate-800 min-w-[90px]">
+                    <span class="block text-[9px] text-slate-400">KETAHANAN</span>
+                    <span class="text-base font-bold text-emerald-400">{{ data.psychological_profile.psy_resilience }}%</span>
+                </div>
+                <div class="p-2.5 rounded-xl bg-slate-950/80 border border-slate-800 min-w-[90px]">
+                    <span class="block text-[9px] text-slate-400">FOKUS</span>
+                    <span class="text-base font-bold text-cyan-400">{{ data.psychological_profile.psy_focus_depth }}%</span>
+                </div>
+                <div class="p-2.5 rounded-xl bg-slate-950/80 border border-slate-800 min-w-[90px]">
+                    <span class="block text-[9px] text-slate-400">RISK TAKING</span>
+                    <span class="text-base font-bold text-amber-400">{{ data.psychological_profile.psy_risk_tolerance }}%</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Grid: Radar Chart (Left 6 cols) & AI Diagnostik Summary (Right 6 cols) -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <!-- Radar Chart Card -->
+        <div class="lg:col-span-6 glass-card p-6 border border-slate-800 flex flex-col justify-between space-y-4">
+            <div>
+                <h2 class="text-base font-bold text-white flex items-center gap-2 font-heading">
+                    <i class="bi bi-radar text-cyan-400 text-lg"></i> Radar Skill Astronot (5 Dimension)
+                </h2>
+                <p class="text-xs text-slate-400 mt-0.5">Peta profil keahlian belajar Anda saat ini.</p>
+            </div>
+
+            <div id="studentMyRadarChart" class="w-full h-80"></div>
+
+            <div class="grid grid-cols-5 gap-1.5 text-center font-mono text-[9px] pt-3 border-t border-slate-800">
+                <div class="p-1.5 rounded-lg bg-slate-900 border border-slate-800">
+                    <span class="block text-slate-500">Konsep</span>
+                    <span class="font-bold text-cyan-400">{{ data.radar_scores[0] }}%</span>
+                </div>
+                <div class="p-1.5 rounded-lg bg-slate-900 border border-slate-800">
+                    <span class="block text-slate-500">Ketelitian</span>
+                    <span class="font-bold text-purple-400">{{ data.radar_scores[1] }}%</span>
+                </div>
+                <div class="p-1.5 rounded-lg bg-slate-900 border border-slate-800">
+                    <span class="block text-slate-500">Kecepatan</span>
+                    <span class="font-bold text-emerald-400">{{ data.radar_scores[2] }}%</span>
+                </div>
+                <div class="p-1.5 rounded-lg bg-slate-900 border border-slate-800">
+                    <span class="block text-slate-500">Konsistensi</span>
+                    <span class="font-bold text-amber-400">{{ data.radar_scores[3] }}%</span>
+                </div>
+                <div class="p-1.5 rounded-lg bg-slate-900 border border-slate-800">
+                    <span class="block text-slate-500">Ketahanan</span>
+                    <span class="font-bold text-rose-400">{{ data.radar_scores[4] }}%</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- AI Insights & Recommendation Card -->
+        <div class="lg:col-span-6 glass-card p-6 border-l-4 border-purple-500 bg-slate-950/60 border border-slate-800 space-y-5">
+            <div>
+                <span class="px-2.5 py-0.5 rounded text-[10px] font-mono font-bold bg-purple-950 border border-purple-500/40 text-purple-300 uppercase">
+                    <i class="bi bi-stars mr-1"></i> AI Personal Learning Insights
+                </span>
+                <h2 class="text-lg font-bold text-white font-heading mt-1">Panduan Belajar Mandiri Anda</h2>
+            </div>
+
+            <!-- Strengths -->
+            <div class="space-y-2">
+                <h3 class="text-xs font-mono font-bold uppercase text-emerald-400 flex items-center gap-1.5">
+                    <i class="bi bi-shield-check"></i> Keunggulan Utama Anda
+                </h3>
+                <div class="space-y-1.5">
+                    {% for item in data.strengths %}
+                    <div class="p-2.5 rounded-xl bg-emerald-950/40 border border-emerald-500/30 text-emerald-200 text-xs font-mono leading-relaxed flex items-start gap-2">
+                        <i class="bi bi-check-circle-fill text-emerald-400 text-sm shrink-0 mt-0.5"></i>
+                        <span>{{ item }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Recommendations -->
+            <div class="space-y-2 pt-2 border-t border-slate-800">
+                <h3 class="text-xs font-mono font-bold uppercase text-amber-300 flex items-center gap-1.5">
+                    <i class="bi bi-lightbulb-fill text-amber-400"></i> Tips Rekomendasi Belajar
+                </h3>
+                <div class="space-y-1.5">
+                    {% for item in data.recommendations %}
+                    <div class="p-2.5 rounded-xl bg-amber-950/40 border border-amber-500/30 text-amber-200 text-xs font-mono leading-relaxed flex items-start gap-2">
+                        <i class="bi bi-star-fill text-amber-400 text-xs shrink-0 mt-1"></i>
+                        <span>{{ item }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+{% if data.has_data %}
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const radarScores = {{ data.radar_scores|tojson }};
+    
+    const options = {
+        series: [{
+            name: 'Skor Anda',
+            data: radarScores
+        }],
+        chart: {
+            height: 320,
+            type: 'radar',
+            toolbar: { show: false },
+            background: 'transparent'
+        },
+        colors: ['#06b6d4'],
+        stroke: { width: 3 },
+        fill: { opacity: 0.3 },
+        markers: { size: 4 },
+        xaxis: {
+            categories: ['Pemahaman Konsep', 'Ketelitian', 'Kecepatan', 'Konsistensi', 'Ketahanan Ujian'],
+            labels: {
+                style: {
+                    colors: ['#38bdf8', '#c084fc', '#34d399', '#fbbf24', '#fb7185'],
+                    fontSize: '10px',
+                    fontFamily: 'monospace'
+                }
+            }
+        },
+        yaxis: {
+            min: 0,
+            max: 100,
+            tickAmount: 5,
+            labels: {
+                formatter: function (val) { return val + '%'; },
+                style: { colors: '#64748b', fontSize: '9px', fontFamily: 'monospace' }
+            }
+        },
+        plotOptions: {
+            radar: {
+                polygons: {
+                    strokeColors: '#334155',
+                    connectorColors: '#334155',
+                    fill: { colors: ['transparent', 'rgba(15, 23, 42, 0.4)'] }
+                }
+            }
+        },
+        tooltip: {
+            theme: 'dark',
+            y: { formatter: function(val) { return val + '%'; } }
+        }
+    };
+
+    const chart = new ApexCharts(document.querySelector("#studentMyRadarChart"), options);
+    chart.render();
+});
+</script>
+{% endif %}
+{% endblock %}
