@@ -78,6 +78,43 @@ def logout():
     return redirect(url_for('auth.login'))
 
 
+@auth_bp.route('/profile', methods=['GET', 'POST'])
+@login_required
+def profile():
+    if request.method == 'POST':
+        username = request.form.get('username')
+        email = request.form.get('email')
+        new_password = request.form.get('new_password')
+        confirm_password = request.form.get('confirm_password')
+
+        # Cek keunikan username jika diubah
+        if username != current_user.username:
+            if User.query.filter_by(username=username).first():
+                flash('Username tersebut sudah digunakan oleh akun lain.', 'danger')
+                return render_template('auth/profile.html')
+            current_user.username = username
+
+        # Cek keunikan email jika diubah
+        if email != current_user.email:
+            if User.query.filter_by(email=email).first():
+                flash('Email tersebut sudah digunakan oleh akun lain.', 'danger')
+                return render_template('auth/profile.html')
+            current_user.email = email
+
+        # Ganti password jika diisi
+        if new_password:
+            if new_password != confirm_password:
+                flash('Konfirmasi password baru tidak cocok.', 'danger')
+                return render_template('auth/profile.html')
+            current_user.set_password(new_password)
+
+        db.session.commit()
+        flash('Identitas & Profil Anda berhasil diperbarui!', 'success')
+        return redirect(url_for('auth.profile'))
+
+    return render_template('auth/profile.html')
+
+
 def redirect_by_role(user):
     if user.role == 'SUPERUSER':
         return redirect(url_for('superuser.dashboard'))
@@ -85,3 +122,4 @@ def redirect_by_role(user):
         return redirect(url_for('teacher.dashboard'))
     else:
         return redirect(url_for('student.dashboard'))
+

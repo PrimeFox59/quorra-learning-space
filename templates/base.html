@@ -93,6 +93,9 @@
                             <div class="flex flex-col text-right">
                                 <span class="text-xs font-bold text-white font-heading leading-tight">{{ current_user.username }}</span>
                             </div>
+                            <a href="{{ url_for('auth.profile') }}" class="text-slate-400 hover:text-cyan-400 transition-colors p-1.5 rounded-lg hover:bg-slate-900" title="Edit Profil & Password">
+                                <i class="bi bi-gear-fill text-lg"></i>
+                            </a>
                             <a href="{{ url_for('auth.logout') }}" class="text-slate-400 hover:text-rose-400 transition-colors p-1.5 rounded-lg hover:bg-rose-950/40" title="Keluar / Logout">
                                 <i class="bi bi-box-arrow-right text-lg"></i>
                             </a>
