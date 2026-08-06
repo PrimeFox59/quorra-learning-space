@@ -15,19 +15,30 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     let isWarping = true;
-    let warpSpeedMultiplier = 25; // Kecepatan tinggi saat pertama dibuka (Lorong Dimensi)
+    let warpSpeedMultiplier = 15; // Inisialisasi kecepatan meluncur yang halus & stabil
     
-    // Kurangi kecepatan secara mulus (smooth deceleration) menjadi normal starfield
+    // Perhalus deselerasi bintang menggunakan exponential decay function (Smooth Easing Out)
     setTimeout(() => {
-        const decelerationTimer = setInterval(() => {
-            warpSpeedMultiplier *= 0.88;
-            if (warpSpeedMultiplier <= 1.05) {
+        let startTime = performance.now();
+        const duration = 1200; // 1.2 detik transisi ultra mulus
+
+        function easeOutDecelerate(now) {
+            let elapsed = now - startTime;
+            let progress = Math.min(1, elapsed / duration);
+            
+            // Cubic ease-out calculation: 1 - pow(1 - progress, 3)
+            let easeFactor = 1 - Math.pow(1 - progress, 3);
+            warpSpeedMultiplier = 15 * (1 - easeFactor) + 1;
+
+            if (progress < 1) {
+                requestAnimationFrame(easeOutDecelerate);
+            } else {
                 warpSpeedMultiplier = 1;
                 isWarping = false;
-                clearInterval(decelerationTimer);
             }
-        }, 50);
-    }, 400);
+        }
+        requestAnimationFrame(easeOutDecelerate);
+    }, 300);
 
     const stars = [];
     const numStars = 220;
