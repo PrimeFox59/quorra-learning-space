@@ -221,3 +221,39 @@ h1, h2, h3, h4, h5, h6, .font-heading {
 ::-webkit-scrollbar-thumb:hover {
   background: #38bdf8;
 }
+
+/* Public Toast Motion Animations */
+@keyframes toastSwipeUp {
+  0% {
+    opacity: 0;
+    transform: translateY(100%) scale(0.9);
+  }
+  70% {
+    opacity: 1;
+    transform: translateY(-8px) scale(1.02);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes toastGlideUp {
+  0% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-40px) scale(0.92);
+  }
+}
+
+.toast-enter {
+  animation: toastSwipeUp 0.65s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.toast-exit {
+  animation: toastGlideUp 0.5s cubic-bezier(0.4, 0, 1, 1) forwards;
+}
+

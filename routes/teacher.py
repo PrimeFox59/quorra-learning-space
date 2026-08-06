@@ -2,7 +2,7 @@ import random
 import string
 from flask import Blueprint, render_template, redirect, url_for, flash, request, jsonify
 from flask_login import login_required, current_user
-from models import db, Workspace, Class, Quiz, Question, Option, QuizAttempt, StudentAnswer, ClassEnrollment, User
+from models import db, Workspace, Class, Quiz, Question, Option, QuizAttempt, StudentAnswer, ClassEnrollment, User, log_public_activity
 
 from functools import wraps
 
@@ -60,6 +60,15 @@ def create_workspace():
         ws = Workspace(name=name, description=description, owner_id=current_user.id)
         db.session.add(ws)
         db.session.commit()
+
+        log_public_activity(
+            event_type='CREATE_WORKSPACE',
+            title='Workspace Baru!',
+            message=f'Guru {current_user.username} mendirikan workspace baru: "{name}"',
+            icon_class='bi-folder-plus',
+            badge_color='purple'
+        )
+
         flash(f'Workspace "{name}" berhasil dibuat!', 'success')
     return redirect(url_for('teacher.dashboard'))
 
@@ -95,8 +104,17 @@ def create_class():
     db.session.add(new_class)
     db.session.commit()
 
+    log_public_activity(
+        event_type='CREATE_CLASS',
+        title='Kelas Pembelajaran Baru!',
+        message=f'Guru {current_user.username} membuka kelas baru: "{name}" (Kode: {code})',
+        icon_class='bi-door-open-fill',
+        badge_color='emerald'
+    )
+
     flash(f'Kelas "{name}" berhasil dibuat! Kode Join: {code}', 'success')
     return redirect(url_for('teacher.class_detail', class_id=new_class.id))
+
 
 @teacher_bp.route('/class/<int:class_id>')
 @login_required
@@ -107,15 +125,42 @@ def class_detail(class_id):
     enrollments = c.enrollments.all()
     return render_template('teacher/class_detail.html', class_obj=c, quizzes=quizzes, enrollments=enrollments)
 
+@teacher_bp.route('/class/edit/<int:class_id>', methods=['POST'])
+@login_required
+@teacher_required
+def edit_class(class_id):
+    c = Class.query.get_or_404(class_id)
+    if c.workspace.owner_id != current_user.id and current_user.role != 'SUPERUSER':
+        flash('Anda tidak memiliki izin mengedit kelas ini.', 'danger')
+        return redirect(url_for('teacher.dashboard'))
+
+    name = request.form.get('name', '').strip()
+    subject = request.form.get('subject', '').strip()
+
+    if name:
+        c.name = name
+    if subject:
+        c.subject = subject
+
+    db.session.commit()
+    flash(f'Kelas "{c.name}" berhasil diperbarui!', 'success')
+    return redirect(request.referrer or url_for('teacher.dashboard'))
+
+
 @teacher_bp.route('/class/delete/<int:class_id>', methods=['POST'])
 @login_required
 @teacher_required
 def delete_class(class_id):
     c = Class.query.get_or_404(class_id)
+    if c.workspace.owner_id != current_user.id and current_user.role != 'SUPERUSER':
+        flash('Anda tidak memiliki izin menghapus kelas ini.', 'danger')
+        return redirect(url_for('teacher.dashboard'))
+
     db.session.delete(c)
     db.session.commit()
     flash('Kelas berhasil dihapus.', 'info')
     return redirect(url_for('teacher.dashboard'))
+
 
 @teacher_bp.route('/quiz/create/<int:class_id>', methods=['GET', 'POST'])
 @login_required

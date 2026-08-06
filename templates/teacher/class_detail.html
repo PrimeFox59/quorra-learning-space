@@ -46,6 +46,16 @@
                 <a href="{{ url_for('teacher.class_analytics', class_id=class_obj.id) }}" class="btn-space-purple px-4 py-2.5 rounded-xl text-xs font-bold font-heading flex items-center justify-center gap-2 shadow-md">
                     <i class="bi bi-graph-up-arrow text-sm"></i> Monitoring & Nilai
                 </a>
+                <div class="flex items-center gap-2">
+                    <button type="button" onclick="toggleModal('editClassHeaderModal')" class="flex-1 px-3 py-1.5 bg-amber-950/80 border border-amber-500/50 hover:bg-amber-900 text-amber-300 rounded-xl text-xs font-bold font-heading flex items-center justify-center gap-1.5 transition-colors">
+                        <i class="bi bi-pencil-square text-xs"></i> Edit Kelas
+                    </button>
+                    <form action="{{ url_for('teacher.delete_class', class_id=class_obj.id) }}" method="POST" onsubmit="return confirm('Hapus seluruh kelas ini beserta seluruh kuis didalamnya?');" class="flex-1">
+                        <button type="submit" class="w-full px-3 py-1.5 bg-rose-950/80 border border-rose-500/50 hover:bg-rose-900 text-rose-300 rounded-xl text-xs font-bold font-heading flex items-center justify-center gap-1.5 transition-colors">
+                            <i class="bi bi-trash text-xs"></i> Hapus Kelas
+                        </button>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
@@ -248,6 +258,40 @@ function openEditQuizModal(quizId, title, description, quizType, timeLimitMinute
 function closeEditQuizModal() {
     document.getElementById('editQuizModal').classList.add('hidden');
 }
-</script>
-{% endblock %}
 
+function toggleModal(modalId) {
+    const m = document.getElementById(modalId);
+    if (m) m.classList.toggle('hidden');
+}
+</script>
+
+<!-- Modal Edit Class Header -->
+<div id="editClassHeaderModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center hidden p-4">
+    <div class="glass-card max-w-md w-full p-6 border-amber-500/50 shadow-2xl">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-base font-bold text-white font-heading flex items-center gap-2">
+                <i class="bi bi-pencil-square text-amber-400"></i> Edit Detail Kelas
+            </h3>
+            <button onclick="toggleModal('editClassHeaderModal')" class="text-slate-400 hover:text-white">
+                <i class="bi bi-x-lg"></i>
+            </button>
+        </div>
+        <form action="{{ url_for('teacher.edit_class', class_id=class_obj.id) }}" method="POST" class="space-y-4">
+            <div>
+                <label class="block text-[10px] font-mono uppercase text-slate-300 mb-1">Nama Kelas</label>
+                <input type="text" name="name" value="{{ class_obj.name }}" required
+                    class="w-full px-3.5 py-2 bg-slate-950 border border-slate-700/80 rounded-xl text-xs text-slate-100 focus:outline-none focus:border-amber-400">
+            </div>
+            <div>
+                <label class="block text-[10px] font-mono uppercase text-slate-300 mb-1">Subjek / Mata Pelajaran</label>
+                <input type="text" name="subject" value="{{ class_obj.subject or '' }}" placeholder="misal: Astrofisika"
+                    class="w-full px-3.5 py-2 bg-slate-950 border border-slate-700/80 rounded-xl text-xs text-slate-100 focus:outline-none focus:border-amber-400">
+            </div>
+            <div class="flex justify-end gap-2 pt-2">
+                <button type="button" onclick="toggleModal('editClassHeaderModal')" class="px-4 py-2 rounded-xl text-slate-400 text-xs hover:bg-slate-800 font-mono">Batal</button>
+                <button type="submit" class="px-5 py-2 bg-amber-950 border border-amber-500/50 hover:bg-amber-900 text-amber-300 rounded-xl text-xs font-heading font-bold transition-colors">Simpan Perubahan</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

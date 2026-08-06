@@ -57,6 +57,14 @@ def join_class():
         db.session.add(new_enrollment)
         db.session.commit()
 
+        log_public_activity(
+            event_type='JOIN_CLASS',
+            title='Astronot Masuk Kelas!',
+            message=f'{current_user.username} telah bergabung ke kelas "{class_obj.name}"!',
+            icon_class='bi-rocket-takeoff-fill',
+            badge_color='cyan'
+        )
+
         # Check badge for joining classes
         check_and_unlock_badges(current_user)
 
@@ -167,6 +175,37 @@ def submit_quiz(quiz_id):
     current_user.add_exp(exp_gained)
 
     db.session.commit()
+
+    # Log activity submit quiz
+    log_public_activity(
+        event_type='SUBMIT_QUIZ',
+        title='Evaluasi Selesai!',
+        message=f'{current_user.username} menyelesaikan "{quiz.title}" dengan skor {score}/100!',
+        icon_class='bi-check-circle-fill',
+        badge_color='amber' if score >= 80 else 'cyan'
+    )
+
+    # Check if student reached Rank #1 in class leaderboard
+    c = quiz.class_obj
+    class_enrollments = c.enrollments.all()
+    c_student_ids = [e.student_id for e in class_enrollments]
+    c_students = User.query.filter(User.id.in_(c_student_ids)).all() if c_student_ids else []
+    
+    leaderboard_data = []
+    for s in c_students:
+        s_attempts = QuizAttempt.query.join(Quiz).filter(Quiz.class_id == c.id, QuizAttempt.student_id == s.id).all()
+        s_avg = round(sum(a.score for a in s_attempts) / len(s_attempts), 1) if s_attempts else 0
+        leaderboard_data.append({'student_id': s.id, 'exp': s.exp, 'avg_score': s_avg})
+
+    leaderboard_data.sort(key=lambda x: (x['exp'], x['avg_score']), reverse=True)
+    if leaderboard_data and leaderboard_data[0]['student_id'] == current_user.id:
+        log_public_activity(
+            event_type='RANK_1',
+            title='Peringkat 1 Baru! 🏆',
+            message=f'Selamat! {current_user.username} menduduki Peringkat 1 di kelas "{c.name}"!',
+            icon_class='bi-trophy-fill',
+            badge_color='gold'
+        )
 
     # Check Badges
     new_badges = check_and_unlock_badges(current_user, score=score, time_taken=time_taken)

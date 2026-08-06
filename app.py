@@ -1,4 +1,4 @@
-from flask import Flask, redirect, url_for, render_template
+from flask import Flask, redirect, url_for, render_template, jsonify
 from flask_login import LoginManager, current_user
 from config import Config
 from models import db, User, LandingTeacher, LandingStudent, LandingFAQ
@@ -51,6 +51,24 @@ def create_app():
         faqs = LandingFAQ.query.all()
         return render_template('landing.html', teachers=teachers, students=students, faqs=faqs)
 
+    @app.route('/quorra/api/public-activities')
+    def get_public_activities():
+        from models import PublicActivity
+        activities = PublicActivity.query.order_by(PublicActivity.created_at.desc()).limit(15).all()
+        data = []
+        for a in activities:
+            data.append({
+                'id': a.id,
+                'event_type': a.event_type,
+                'title': a.title,
+                'message': a.message,
+                'icon_class': a.icon_class,
+                'badge_color': a.badge_color,
+                'timestamp': a.created_at.strftime('%H:%M:%S')
+            })
+        return jsonify(data)
+
+
     # Initialize Database & Seed Default Accounts
     init_db(app)
 
@@ -58,5 +76,10 @@ def create_app():
 
 app = create_app()
 
+from flask_socketio import SocketIO
+socketio = SocketIO(app, cors_allowed_origins="*", async_mode="threading")
+
 if __name__ == '__main__':
-    app.run(debug=True, port=5000)
+    socketio.run(app, debug=True, port=5000, allow_unsafe_werkzeug=True)
+
+

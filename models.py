@@ -227,3 +227,50 @@ class LandingFAQ(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     question = db.Column(db.Text, nullable=False)
     answer = db.Column(db.Text, nullable=False)
+
+
+class PublicActivity(db.Model):
+    __tablename__ = 'public_activities'
+
+    id = db.Column(db.Integer, primary_key=True)
+    event_type = db.Column(db.String(50), nullable=False) # REGISTER, JOIN_CLASS, CREATE_CLASS, CREATE_WORKSPACE, SUBMIT_QUIZ, RANK_1
+    title = db.Column(db.String(150), nullable=False)
+    message = db.Column(db.Text, nullable=False)
+    icon_class = db.Column(db.String(50), default='bi-bell-fill')
+    badge_color = db.Column(db.String(50), default='cyan')
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+
+def log_public_activity(event_type, title, message, icon_class='bi-bell-fill', badge_color='cyan'):
+    try:
+        activity = PublicActivity(
+            event_type=event_type,
+            title=title,
+            message=message,
+            icon_class=icon_class,
+            badge_color=badge_color
+        )
+        db.session.add(activity)
+        db.session.commit()
+
+        # Real-time WebSocket Broadcast ke semua client yang terkoneksi
+        try:
+            from app import socketio
+            payload = {
+                'id': activity.id,
+                'event_type': activity.event_type,
+                'title': activity.title,
+                'message': activity.message,
+                'icon_class': activity.icon_class,
+                'badge_color': activity.badge_color,
+                'timestamp': activity.created_at.strftime('%H:%M:%S')
+            }
+            socketio.emit('new_public_activity', payload)
+        except Exception as socket_err:
+            print("Notice: WebSocket emit failed:", socket_err)
+
+    except Exception as e:
+        db.session.rollback()
+        print("Notice: Log public activity error:", e)
+
+

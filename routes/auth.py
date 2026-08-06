@@ -31,6 +31,8 @@ def login():
     return render_template('auth/login.html')
 
 
+from models import db, User, log_public_activity
+
 @auth_bp.route('/register', methods=['POST'])
 def register():
     username = request.form.get('username')
@@ -55,8 +57,17 @@ def register():
     db.session.add(new_user)
     db.session.commit()
 
+    log_public_activity(
+        event_type='REGISTER',
+        title='Astronot Baru Bergabung!',
+        message=f'{username} ({role}) baru saja mendaftar ke Quorra Space!',
+        icon_class='bi-person-plus-fill',
+        badge_color='cyan'
+    )
+
     flash('Pendaftaran akun Astronot berhasil! Akun Anda sedang menunggu konfirmasi/persetujuan dari Superuser.', 'success')
     return redirect(url_for('auth.login'))
+
 
 
 @auth_bp.route('/logout')

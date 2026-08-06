@@ -165,8 +165,141 @@
         <p class="text-slate-500 text-[10px]">© 2026 Quorra Space. Learning Management System | Powered by Flask, SQLite & Space Blue Engine.</p>
     </footer>
 
+    <!-- Global Public Toast Notification Container (Bottom Right) -->
+    <div id="publicToastContainer" class="fixed bottom-5 right-5 z-50 flex flex-col gap-3 max-w-sm pointer-events-none"></div>
+
+    <!-- Socket.IO CDN Client -->
+    <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+
     <!-- Starfield JS -->
     <script src="{{ url_for('static', filename='js/starfield.js') }}"></script>
+
+    <!-- Public Activity Toast Realtime Socket.IO Script -->
+    <script>
+    (function() {
+        // Pengecualian: Jangan tampilkan notifikasi saat murid sedang dalam kuis/ujian
+        const currentPath = window.location.pathname;
+        if (currentPath.includes('/quiz/take/')) {
+            return; // Exit script, murid sedang fokus kuis
+        }
+
+        const toastContainer = document.getElementById('publicToastContainer');
+        const shownActivityIds = new Set();
+        const toastQueue = [];
+        let isShowingToast = false;
+
+        // Inisialisasi Realtime WebSocket Client Connection
+        const socket = io();
+
+        socket.on('connect', function() {
+            console.log("⚡ [WebSocket] Terhubung ke Quorra Real-Time Event Engine");
+        });
+
+        // Tangkap Event Baru dari Server via WebSocket secara INSTAN
+        socket.on('new_public_activity', function(activity) {
+            if (!shownActivityIds.has(activity.id)) {
+                shownActivityIds.add(activity.id);
+                toastQueue.push(activity);
+                processQueue();
+            }
+        });
+
+        async function fetchInitialActivities() {
+            try {
+                const res = await fetch('/quorra/api/public-activities');
+                if (!res.ok) return;
+                const activities = await res.json();
+                
+                if (!activities || activities.length === 0) return;
+
+                // Tampilkan 1 aktivitas awal jika ada
+                for (let i = activities.length - 1; i >= 0; i--) {
+                    const act = activities[i];
+                    if (!shownActivityIds.has(act.id)) {
+                        shownActivityIds.add(act.id);
+                        toastQueue.push(act);
+                    }
+                }
+                processQueue();
+            } catch (err) {
+                console.log("Notice: Initial activities fetch error", err);
+            }
+        }
+
+        function processQueue() {
+            if (isShowingToast || toastQueue.length === 0) return;
+            
+            const nextActivity = toastQueue.shift();
+            displayToast(nextActivity);
+        }
+
+        function displayToast(activity) {
+            isShowingToast = true;
+
+            const toast = document.createElement('div');
+            toast.className = 'pointer-events-auto toast-enter glass-card p-4 rounded-2xl border shadow-2xl flex items-start gap-3 text-xs font-mono relative overflow-hidden backdrop-blur-xl';
+            
+            // Set Dynamic Color Styles
+            let badgeBg = 'bg-cyan-950/90 border-cyan-500/50 text-cyan-300';
+            let iconColor = 'text-cyan-400';
+            let borderStyle = 'border-cyan-500/40';
+
+            if (activity.badge_color === 'purple') {
+                badgeBg = 'bg-purple-950/90 border-purple-500/50 text-purple-300';
+                iconColor = 'text-purple-400';
+                borderStyle = 'border-purple-500/40';
+            } else if (activity.badge_color === 'emerald') {
+                badgeBg = 'bg-emerald-950/90 border-emerald-500/50 text-emerald-300';
+                iconColor = 'text-emerald-400';
+                borderStyle = 'border-emerald-500/40';
+            } else if (activity.badge_color === 'amber' || activity.badge_color === 'gold') {
+                badgeBg = 'bg-amber-950/90 border-amber-500/50 text-amber-300';
+                iconColor = 'text-amber-400';
+                borderStyle = 'border-amber-500/40';
+            }
+
+            toast.style.borderColor = borderStyle;
+
+            toast.innerHTML = `
+                <div class="w-9 h-9 rounded-xl ${badgeBg} border flex items-center justify-center text-base shrink-0 shadow-md">
+                    <i class="bi ${activity.icon_class} ${iconColor}"></i>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <div class="flex items-center justify-between gap-2 mb-0.5">
+                        <span class="font-bold text-white font-heading truncate">${activity.title}</span>
+                        <span class="text-[9px] text-slate-500 font-mono shrink-0">${activity.timestamp}</span>
+                    </div>
+                    <p class="text-slate-300 text-[11px] font-sans leading-relaxed line-clamp-2">${activity.message}</p>
+                </div>
+            `;
+
+            toastContainer.appendChild(toast);
+
+            // Otomatis hilang meluncur ke atas setelah 4 detik
+            setTimeout(() => {
+                removeToastWithMotion(toast);
+            }, 4000);
+        }
+
+        function removeToastWithMotion(toastEl) {
+            if (!toastEl || toastEl.classList.contains('toast-exit')) return;
+            toastEl.classList.remove('toast-enter');
+            toastEl.classList.add('toast-exit');
+            setTimeout(() => {
+                if (toastEl.parentNode) {
+                    toastEl.parentNode.removeChild(toastEl);
+                }
+                isShowingToast = false;
+                // Lanjut ke antrean notifikasi berikutnya
+                setTimeout(processQueue, 300);
+            }, 500);
+        }
+
+        fetchInitialActivities();
+    })();
+    </script>
+
     {% block scripts %}{% endblock %}
 </body>
 </html>
+
