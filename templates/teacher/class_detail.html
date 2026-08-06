@@ -39,23 +39,21 @@
                 </div>
             </div>
 
-            <div class="flex flex-col gap-2">
-                <a href="{{ url_for('teacher.create_quiz', class_id=class_obj.id) }}" class="btn-space-cyan px-4 py-2.5 rounded-xl text-xs font-bold font-heading flex items-center justify-center gap-2 shadow-md">
-                    <i class="bi bi-patch-plus-fill text-sm"></i> Buat Quiz / Quest
+            <div class="flex items-center gap-2">
+                <a href="{{ url_for('teacher.create_quiz', class_id=class_obj.id) }}" class="p-2.5 rounded-xl btn-space-cyan shadow-md text-slate-100 hover:text-white" title="Buat Quiz / Quest Baru">
+                    <i class="bi bi-patch-plus-fill text-lg"></i>
                 </a>
-                <a href="{{ url_for('teacher.class_analytics', class_id=class_obj.id) }}" class="btn-space-purple px-4 py-2.5 rounded-xl text-xs font-bold font-heading flex items-center justify-center gap-2 shadow-md">
-                    <i class="bi bi-graph-up-arrow text-sm"></i> Monitoring & Nilai
+                <a href="{{ url_for('teacher.class_analytics', class_id=class_obj.id) }}" class="p-2.5 rounded-xl btn-space-purple shadow-md text-slate-100 hover:text-white" title="Monitoring & Nilai Kelas">
+                    <i class="bi bi-graph-up-arrow text-lg"></i>
                 </a>
-                <div class="flex items-center gap-2">
-                    <button type="button" onclick="toggleModal('editClassHeaderModal')" class="flex-1 px-3 py-1.5 bg-amber-950/80 border border-amber-500/50 hover:bg-amber-900 text-amber-300 rounded-xl text-xs font-bold font-heading flex items-center justify-center gap-1.5 transition-colors">
-                        <i class="bi bi-pencil-square text-xs"></i> Edit Kelas
+                <button type="button" onclick="toggleModal('editClassHeaderModal')" class="p-2.5 bg-amber-950/80 border border-amber-500/50 hover:bg-amber-900 text-amber-300 rounded-xl transition-colors shadow-md" title="Edit Kelas">
+                    <i class="bi bi-pencil-square text-lg"></i>
+                </button>
+                <form action="{{ url_for('teacher.delete_class', class_id=class_obj.id) }}" method="POST" onsubmit="return confirm('Hapus seluruh kelas ini beserta seluruh kuis didalamnya?');">
+                    <button type="submit" class="p-2.5 bg-rose-950/80 border border-rose-500/50 hover:bg-rose-900 text-rose-300 rounded-xl transition-colors shadow-md" title="Hapus Kelas">
+                        <i class="bi bi-trash text-lg"></i>
                     </button>
-                    <form action="{{ url_for('teacher.delete_class', class_id=class_obj.id) }}" method="POST" onsubmit="return confirm('Hapus seluruh kelas ini beserta seluruh kuis didalamnya?');" class="flex-1">
-                        <button type="submit" class="w-full px-3 py-1.5 bg-rose-950/80 border border-rose-500/50 hover:bg-rose-900 text-rose-300 rounded-xl text-xs font-bold font-heading flex items-center justify-center gap-1.5 transition-colors">
-                            <i class="bi bi-trash text-xs"></i> Hapus Kelas
-                        </button>
-                    </form>
-                </div>
+                </form>
             </div>
         </div>
     </div>
@@ -135,8 +133,8 @@
 
                 <div class="pt-2.5 border-t border-slate-800/80 flex items-center justify-between">
                     <span class="text-[10px] text-slate-500 font-mono">Dibuat {{ q.created_at.strftime('%d %b %Y') }}</span>
-                    <a href="{{ url_for('teacher.quiz_builder', quiz_id=q.id) }}" class="btn-space-cyan px-3.5 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 shadow-sm">
-                        <i class="bi bi-gear-fill"></i> Kelola Soal (ABCD)
+                    <a href="{{ url_for('teacher.quiz_builder', quiz_id=q.id) }}" class="p-2 rounded-lg btn-space-cyan shadow-sm" title="Kelola Soal (ABCD)">
+                        <i class="bi bi-gear-fill text-sm"></i>
                     </a>
                 </div>
             </div>
@@ -163,9 +161,9 @@
                     </div>
                 </div>
                 <a href="{{ url_for('teacher.student_analysis_detail', class_id=class_obj.id, student_id=e.student.id) }}" 
-                   class="px-2 py-1 rounded bg-purple-950 border border-purple-500/50 text-purple-300 hover:bg-purple-900 text-[10px] font-mono font-bold shrink-0 flex items-center gap-1 transition-colors"
+                   class="p-2 rounded-lg bg-purple-950 border border-purple-500/50 text-purple-300 hover:bg-purple-900 shrink-0 flex items-center justify-center transition-colors"
                    title="Lihat Analisis Potensi Murid Ini">
-                    <i class="bi bi-radar"></i> Potensi
+                    <i class="bi bi-radar text-sm"></i>
                 </a>
             </div>
             {% else %}
