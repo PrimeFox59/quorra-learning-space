@@ -176,14 +176,15 @@ def submit_quiz(quiz_id):
 
     db.session.commit()
 
-    # Log activity submit quiz
-    log_public_activity(
-        event_type='SUBMIT_QUIZ',
-        title='Evaluasi Selesai!',
-        message=f'{current_user.username} menyelesaikan "{quiz.title}" dengan skor {score}/100!',
-        icon_class='bi-check-circle-fill',
-        badge_color='amber' if score >= 80 else 'cyan'
-    )
+    # Log activity submit quiz (Hanya jika meraih skor sempurna 100)
+    if score == 100:
+        log_public_activity(
+            event_type='SUBMIT_QUIZ',
+            title='Nilai Sempurna! 🎯',
+            message=f'{current_user.username} meraih skor sempurna 100/100 pada "{quiz.title}"!',
+            icon_class='bi-award-fill',
+            badge_color='amber'
+        )
 
     # Check if student reached Rank #1 in class leaderboard
     c = quiz.class_obj
