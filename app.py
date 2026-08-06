@@ -21,6 +21,14 @@ def create_app():
     def load_user(user_id):
         return User.query.get(int(user_id))
 
+    @app.template_filter('nl2br')
+    def nl2br_filter(s):
+        if not s:
+            return ""
+        from markupsafe import Markup, escape
+        escaped_text = escape(str(s))
+        return Markup(escaped_text.replace('\n', '<br>'))
+
     # Register Blueprints
     from routes.auth import auth_bp
     from routes.superuser import superuser_bp
