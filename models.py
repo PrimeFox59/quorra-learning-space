@@ -18,11 +18,15 @@ class User(UserMixin, db.Model):
     exp = db.Column(db.Integer, default=0)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
+    mbti_type = db.Column(db.String(10), nullable=True) # e.g. INTJ, ENFP
+    mbti_tested_at = db.Column(db.DateTime, nullable=True)
+
     # Relationships
     workspaces = db.relationship('Workspace', backref='owner', lazy='dynamic', cascade='all, delete-orphan')
     enrollments = db.relationship('ClassEnrollment', backref='student', lazy='dynamic', cascade='all, delete-orphan')
     quiz_attempts = db.relationship('QuizAttempt', backref='student', lazy='dynamic', cascade='all, delete-orphan')
     badges = db.relationship('UserBadge', backref='user', lazy='dynamic', cascade='all, delete-orphan')
+    mbti_results = db.relationship('StudentMBTIResult', backref='student', lazy='dynamic', foreign_keys='StudentMBTIResult.student_id', cascade='all, delete-orphan')
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
@@ -238,6 +242,28 @@ class PublicActivity(db.Model):
     message = db.Column(db.Text, nullable=False)
     icon_class = db.Column(db.String(50), default='bi-bell-fill')
     badge_color = db.Column(db.String(50), default='cyan')
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+
+class StudentMBTIResult(db.Model):
+    __tablename__ = 'student_mbti_results'
+
+    id = db.Column(db.Integer, primary_key=True)
+    student_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    mbti_type = db.Column(db.String(10), nullable=False) # e.g. INTJ
+    mbti_title = db.Column(db.String(100), nullable=False)
+    mbti_trait = db.Column(db.Text, nullable=False)
+    
+    # Detailed Dimension Breakdown Scores (Percentage e.g. E: 65, I: 35)
+    e_score = db.Column(db.Integer, default=50)
+    i_score = db.Column(db.Integer, default=50)
+    s_score = db.Column(db.Integer, default=50)
+    n_score = db.Column(db.Integer, default=50)
+    t_score = db.Column(db.Integer, default=50)
+    f_score = db.Column(db.Integer, default=50)
+    j_score = db.Column(db.Integer, default=50)
+    p_score = db.Column(db.Integer, default=50)
+    
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
 

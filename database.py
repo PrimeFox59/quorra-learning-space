@@ -125,6 +125,16 @@ def migrate_schema():
             except Exception as e:
                 print("Options migration notice:", e)
 
+        try:
+            conn.execute(text("SELECT mbti_type FROM users LIMIT 1"))
+        except Exception:
+            try:
+                conn.execute(text("ALTER TABLE users ADD COLUMN mbti_type VARCHAR(10)"))
+                conn.execute(text("ALTER TABLE users ADD COLUMN mbti_tested_at DATETIME"))
+                conn.commit()
+            except Exception as e:
+                print("Users MBTI migration notice:", e)
+
 def ensure_configs():
     if not SystemConfig.query.filter_by(key='gemini_model').first():
         db.session.add(SystemConfig(key='gemini_model', value='gemini-2.5-flash'))

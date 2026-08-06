@@ -342,3 +342,108 @@ def analytics():
         class_obj=enrollment.class_obj,
         data=analytics_data
     )
+
+
+# --- FITUR TES MBTI KEPRIBADIAN DIRI ---
+from models import StudentMBTIResult
+
+MBTI_QUESTIONS = [
+    # E vs I
+    {"id": 1, "dimension": "EI", "text": "Saat berada di lingkungan baru atau acara sosial, kamu cenderung...", "options": [{"val": "E", "text": "Mudah memulai obrolan & mendapat energi dari berinteraksi dengan orang baru."}, {"val": "I", "text": "Lebih tenang mengamati & merasa energi lebih cepat terkuras jika terlalu ramai."}]},
+    {"id": 2, "dimension": "EI", "text": "Saat menyelesaikan tugas / proyek sulit, kamu lebih suka...", "options": [{"val": "E", "text": "Mendiskusikan ide bersama tim / kelompok belajar."}, {"val": "I", "text": "Fokus memikirkannya secara mandiri dalam suasana tenang."}]},
+    {"id": 3, "dimension": "EI", "text": "Setelah seharian beraktivitas padat, cara terbaik bagimu untuk refresh adalah...", "options": [{"val": "E", "text": "Nongkrong atau mengobrol dengan teman-teman."}, {"val": "I", "text": "Menikmati waktu sendiri (membaca, main game, atau istirahat)."}]},
+    
+    # S vs N
+    {"id": 4, "dimension": "SN", "text": "Saat mempelajari topik materi pelajaran baru, kamu lebih tertarik pada...", "options": [{"val": "S", "text": "Fakta riil, contoh konkret, dan langkah praktikal yang jelas."}, {"val": "N", "text": "Konsep teori mendalam, potensi masa depan, dan gambaran besar."}]},
+    {"id": 5, "dimension": "SN", "text": "Ketika membaca petunjuk atau soal kuis, kamu cenderung...", "options": [{"val": "S", "text": "Memperhatikan setiap kata & detail instruksi secara cermat."}, {"val": "N", "text": "Menangkap inti ide utama dengan cepat tanpa terlalu terpaku pada detail kata."}]},
+    {"id": 6, "dimension": "SN", "text": "Orang lain sering mengenali kamu sebagai seorang yang...", "options": [{"val": "S", "text": "Praktis, realistis, dan mengutamakan bukti nyata."}, {"val": "N", "text": "Imajinatif, inovatif, dan kaya akan gagasan baru."}]},
+    
+    # T vs F
+    {"id": 7, "dimension": "TF", "text": "Saat mengambil keputusan penting, kamu paling mengutamakan...", "options": [{"val": "T", "text": "Logika objektif, kriteria ilmiah, dan analisis sebab-akibat."}, {"val": "F", "text": "Nilai-nilai kemanusiaan, empati, dan dampaknya bagi perasaan orang lain."}]},
+    {"id": 8, "dimension": "TF", "text": "Jika teman kelompokmu melakukan kesalahan dalam tugas...", "options": [{"val": "T", "text": "Langsung mengoreksi bagian yang salah secara lugas demi hasil terbaik."}, {"val": "F", "text": "Menyampaikan koreksi secara halus dan hati-hati agar tidak menyinggung."}]},
+    {"id": 9, "dimension": "TF", "text": "Kamu merasa paling dihargai ketika dipuji atas...", "options": [{"val": "T", "text": "Kecerdasan, efisiensi kerja, dan kemampuan pemecahan masalahmu."}, {"val": "F", "text": "Kebaikan hati, kepedulian, dan dedikasi hubunganmu."}]},
+
+    # J vs P
+    {"id": 10, "dimension": "JP", "text": "Gaya kamu dalam mengatur jadwal kegiatan sehari-hari adalah...", "options": [{"val": "J", "text": "Terstruktur, membuat to-do list, dan suka menyelesaikan tugas jauh hari."}, {"val": "P", "text": "Spontan, fleksibel, dan terbiasa bekerja produktif menjelang tenggat waktu."}]},
+    {"id": 11, "dimension": "JP", "text": "Ketika rencana yang sudah disusun mendadak berubah, reaksi kamu...", "options": [{"val": "J", "text": "Agak terganggu dan berusaha secepatnya mengembalikan kepastian rencana."}, {"val": "P", "text": "Tenang dan mudah beradaptasi dengan situasi atau opsi baru."}]},
+    {"id": 12, "dimension": "JP", "text": "Ruang belajar / kamar pribadi kamu biasanya dalam kondisi...", "options": [{"val": "J", "text": "Rapi, terorganisir, dan barang diletakkan sesuai tempatnya."}, {"val": "P", "text": "Fleksibel / sedikit acak, namun kamu tetap tahu di mana letak barangmu."}]}
+]
+
+
+@student_bp.route('/mbti-test')
+@login_required
+def mbti_test():
+    latest_result = StudentMBTIResult.query.filter_by(student_id=current_user.id).order_by(StudentMBTIResult.created_at.desc()).first()
+    return render_template('student/mbti_test.html', questions=MBTI_QUESTIONS, latest_result=latest_result)
+
+
+@student_bp.route('/mbti-test/submit', methods=['POST'])
+@login_required
+def submit_mbti_test():
+    scores = {'E': 0, 'I': 0, 'S': 0, 'N': 0, 'T': 0, 'F': 0, 'J': 0, 'P': 0}
+    
+    for q in MBTI_QUESTIONS:
+        ans = request.form.get(f'q_{q["id"]}')
+        if ans in scores:
+            scores[ans] += 1
+
+    # Tentukan tipe MBTI (Dominan)
+    type_e_i = 'E' if scores['E'] >= scores['I'] else 'I'
+    type_s_n = 'S' if scores['S'] >= scores['N'] else 'N'
+    type_t_f = 'T' if scores['T'] >= scores['F'] else 'F'
+    type_j_p = 'J' if scores['J'] >= scores['P'] else 'P'
+
+    mbti_type = f"{type_e_i}{type_s_n}{type_t_f}{type_j_p}"
+
+    mbti_dict = {
+        'ISTJ': {'title': 'The Inspector / Pengamat Tekun', 'trait': 'Metodis, sangat teliti pada detail, menyukai struktur materi yang sistematis.'},
+        'ISFJ': {'title': 'The Protector / Penjaga Setia', 'trait': 'Sabar, penuh ketekunan, belajar dengan tenang dan memperhatikan aturan.'},
+        'INFJ': {'title': 'The Advocate / Pemikir Visi', 'trait': 'Reflektif, berorientasi pada pemahaman makna mendalam daripada sekadar nilai.'},
+        'INTJ': {'title': 'The Architect / Perancang Strategis', 'trait': 'Analitis, mandiri, selalu mencari pola dan cara efisien menyelesaikan misi.'},
+        'ISTP': {'title': 'The Craftsman / Eksen Strategis', 'trait': 'Praktikal, tenang di bawah tekanan waktu, pemecah masalah yang taktis.'},
+        'ISFP': {'title': 'The Artist / Penjelajah Fleksibel', 'trait': 'Adaptif, menyukai pengalaman belajar visual & fleksibel tanpa keterpaksaan.'},
+        'INFP': {'title': 'The Mediator / Pembelajar Idealis', 'trait': 'Kreatif, belajar berdasarkan antusiasme materi yang disukainya.'},
+        'INTP': {'title': 'The Thinker / Logikawan Kuantum', 'trait': 'Penuh rasa ingin tahu, rasa analisis teoritis tinggi, fleksibel dalam berpikir.'},
+        'ESTP': {'title': 'The Dynamo / Eksekutor Cepat', 'trait': 'Lincah, berani mengambil risiko, merespon kuis dengan kecepatan tinggi.'},
+        'ESFP': {'title': 'The Performer / Motivator Aktif', 'trait': 'Antusias, bersemangat saat mendapat tantangan EXP & penghargaan kompetitif.'},
+        'ENFP': {'title': 'The Campaigner / Inovator Antusias', 'trait': 'Kreatif, cepat menangkap ide baru dan menyukai simulasi interaktif.'},
+        'ENTP': {'title': 'The Debater / Eksplorer Kritis', 'trait': 'Suka tantangan soal kompleks, berani mencoba berbagai kemungkinan opsi.'},
+        'ESTJ': {'title': 'The Executive / Pengelola Disiplin', 'trait': 'Organisatoris, teratur, menargetkan skor maksimal dengan strategi jelas.'},
+        'ESFJ': {'title': 'The Provider / Kolaborator Handal', 'trait': 'Kooperatif, bersemangat belajar bersama rekan kelas di leaderboard.'},
+        'ENFJ': {'title': 'The Protagonist / Pemimpin Inspiratif', 'trait': 'Karismatis, konsisten, terdorong membantu & menjadi panutan kelas.'},
+        'ENTJ': {'title': 'The Commander / Komandan Strategis', 'trait': 'Berjiwa pemimpin, kompetitif, fokus pada pencapaian target tertinggi.'}
+    }
+
+    profile = mbti_dict.get(mbti_type, mbti_dict['INTJ'])
+
+    # Hitung Persentase Dimensi
+    pct_e = round((scores['E'] / 3) * 100)
+    pct_i = 100 - pct_e
+    pct_s = round((scores['S'] / 3) * 100)
+    pct_n = 100 - pct_s
+    pct_t = round((scores['T'] / 3) * 100)
+    pct_f = 100 - pct_t
+    pct_j = round((scores['J'] / 3) * 100)
+    pct_p = 100 - pct_j
+
+    # Simpan hasil tes ke DB
+    res = StudentMBTIResult(
+        student_id=current_user.id,
+        mbti_type=mbti_type,
+        mbti_title=profile['title'],
+        mbti_trait=profile['trait'],
+        e_score=pct_e, i_score=pct_i,
+        s_score=pct_s, n_score=pct_n,
+        t_score=pct_t, f_score=pct_f,
+        j_score=pct_j, p_score=pct_p
+    )
+    db.session.add(res)
+
+    # Update profil resmi MBTI di tabel User
+    current_user.mbti_type = mbti_type
+    current_user.mbti_tested_at = datetime.utcnow()
+    db.session.commit()
+
+    flash(f'Tes MBTI Berhasil! Kepribadian resmi Anda terverifikasi sebagai {mbti_type} ({profile["title"]}).', 'success')
+    return redirect(url_for('student.mbti_test'))
+

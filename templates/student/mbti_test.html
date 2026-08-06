@@ -1,0 +1,166 @@
+{% extends "base.html" %}
+
+{% block title %}Tes MBTI Kepribadian Diri Astronot - Quorra Space{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto space-y-6">
+    <!-- Breadcrumb -->
+    <div class="flex items-center gap-2 text-xs font-mono text-slate-400">
+        <a href="{{ url_for('student.dashboard') }}" class="hover:text-amber-400">Dashboard Siswa</a>
+        <span>/</span>
+        <span class="text-amber-400 font-bold">Tes MBTI Kepribadian Diri</span>
+    </div>
+
+    <!-- Header Banner -->
+    <div class="glass-card p-6 md:p-8 border-l-4 border-amber-400 relative overflow-hidden">
+        <div class="absolute -right-10 -bottom-10 w-48 h-48 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
+            <div class="flex items-center gap-4">
+                <div class="w-14 h-14 rounded-2xl bg-amber-500/10 border border-amber-500/40 text-amber-400 flex items-center justify-center text-3xl shrink-0 shadow-lg shadow-amber-500/20 font-mono">
+                    <i class="bi bi-person-badge-fill"></i>
+                </div>
+                <div>
+                    <div class="flex items-center gap-2 mb-1">
+                        <span class="px-2.5 py-0.5 rounded bg-amber-950 border border-amber-500/40 text-[10px] font-mono text-amber-300 font-bold uppercase">TES RESMI KARAKTER</span>
+                        <span class="text-xs text-slate-500">•</span>
+                        <span class="text-xs text-slate-400 font-mono">Bisa Dites Berulang Kali</span>
+                    </div>
+                    <h1 class="text-2xl font-black text-white font-heading">Tes Psikologi MBTI 16 Karakter</h1>
+                    <p class="text-slate-300 text-xs mt-0.5 font-mono">
+                        Pahami gaya belajar bawaan, kekuatan berpikir, dan preferensi interaksimu di stasiun pembelajaran.
+                    </p>
+                </div>
+            </div>
+
+            {% if current_user.mbti_type %}
+            <div class="p-3.5 rounded-2xl bg-slate-950/90 border border-amber-500/50 text-center shrink-0 min-w-[160px]">
+                <span class="block text-[9px] text-amber-400 font-mono font-bold uppercase">BADGE MBTI RESMI SAAT INI</span>
+                <span class="text-2xl font-black text-white font-mono">{ {{ current_user.mbti_type }} }</span>
+                <span class="block text-[9px] text-slate-400 font-mono">Dites: {{ current_user.mbti_tested_at.strftime('%d %b %Y') if current_user.mbti_tested_at else 'Resmi' }}</span>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Verified Badge & Detailed Result Card (If Tested Before) -->
+    {% if latest_result %}
+    <div class="glass-card p-6 border-2 border-amber-400/60 bg-gradient-to-r from-slate-950 via-slate-900 to-amber-950/30 space-y-6">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800 pb-4">
+            <div>
+                <div class="flex items-center gap-2 mb-1">
+                    <span class="px-3 py-1 rounded-full bg-amber-500 text-slate-950 font-black font-mono text-xs shadow-md">
+                        BADGE MBTI TERVERIFIKASI: {{ latest_result.mbti_type }}
+                    </span>
+                    <span class="text-xs text-slate-400 font-mono">Diterbitkan: {{ latest_result.created_at.strftime('%d %B %Y %H:%M') }}</span>
+                </div>
+                <h2 class="text-xl font-bold text-white font-heading mt-1">{{ latest_result.mbti_title }}</h2>
+                <p class="text-xs text-slate-300 font-mono mt-1 leading-relaxed">"{{ latest_result.mbti_trait }}"</p>
+            </div>
+            <a href="#testForm" class="btn-space-cyan px-4 py-2 rounded-xl text-xs font-bold font-heading shrink-0 flex items-center gap-1.5 self-start md:self-auto">
+                <i class="bi bi-arrow-repeat text-sm"></i> Tes Ulang MBTI
+            </a>
+        </div>
+
+        <!-- 4 Dimension Progress Breakdown Bars -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 font-mono text-xs">
+            <!-- E vs I -->
+            <div class="p-3.5 rounded-xl bg-slate-900/80 border border-slate-800 space-y-1.5">
+                <div class="flex justify-between font-bold">
+                    <span class="text-sky-300">Extraversion (E): {{ latest_result.e_score }}%</span>
+                    <span class="text-purple-300">Introversion (I): {{ latest_result.i_score }}%</span>
+                </div>
+                <div class="w-full bg-purple-950 h-2.5 rounded-full overflow-hidden flex">
+                    <div class="bg-sky-400 h-full" style="width: {{ latest_result.e_score }}%;"></div>
+                    <div class="bg-purple-400 h-full" style="width: {{ latest_result.i_score }}%;"></div>
+                </div>
+            </div>
+
+            <!-- S vs N -->
+            <div class="p-3.5 rounded-xl bg-slate-900/80 border border-slate-800 space-y-1.5">
+                <div class="flex justify-between font-bold">
+                    <span class="text-emerald-300">Sensing (S): {{ latest_result.s_score }}%</span>
+                    <span class="text-amber-300">Intuition (N): {{ latest_result.n_score }}%</span>
+                </div>
+                <div class="w-full bg-amber-950 h-2.5 rounded-full overflow-hidden flex">
+                    <div class="bg-emerald-400 h-full" style="width: {{ latest_result.s_score }}%;"></div>
+                    <div class="bg-amber-400 h-full" style="width: {{ latest_result.n_score }}%;"></div>
+                </div>
+            </div>
+
+            <!-- T vs F -->
+            <div class="p-3.5 rounded-xl bg-slate-900/80 border border-slate-800 space-y-1.5">
+                <div class="flex justify-between font-bold">
+                    <span class="text-cyan-300">Thinking (T): {{ latest_result.t_score }}%</span>
+                    <span class="text-rose-300">Feeling (F): {{ latest_result.f_score }}%</span>
+                </div>
+                <div class="w-full bg-rose-950 h-2.5 rounded-full overflow-hidden flex">
+                    <div class="bg-cyan-400 h-full" style="width: {{ latest_result.t_score }}%;"></div>
+                    <div class="bg-rose-400 h-full" style="width: {{ latest_result.f_score }}%;"></div>
+                </div>
+            </div>
+
+            <!-- J vs P -->
+            <div class="p-3.5 rounded-xl bg-slate-900/80 border border-slate-800 space-y-1.5">
+                <div class="flex justify-between font-bold">
+                    <span class="text-indigo-300">Judging (J): {{ latest_result.j_score }}%</span>
+                    <span class="text-teal-300">Perceiving (P): {{ latest_result.p_score }}%</span>
+                </div>
+                <div class="w-full bg-teal-950 h-2.5 rounded-full overflow-hidden flex">
+                    <div class="bg-indigo-400 h-full" style="width: {{ latest_result.j_score }}%;"></div>
+                    <div class="bg-teal-400 h-full" style="width: {{ latest_result.p_score }}%;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- MBTI Questionnaire Form -->
+    <form id="testForm" action="{{ url_for('student.submit_mbti_test') }}" method="POST" class="space-y-6">
+        <div class="glass-card p-5 border border-slate-800 flex items-center justify-between gap-4">
+            <div class="flex items-center gap-2.5 text-xs font-mono text-slate-300">
+                <i class="bi bi-[#f59e0b] bi-question-circle-fill text-amber-400 text-lg shrink-0"></i>
+                <span>Jawablah 12 pertanyaan psikologi berikut sesuai dengan kebiasaan dan naluri diri kamu yang sebenarnya.</span>
+            </div>
+        </div>
+
+        {% for q in questions %}
+        <div class="glass-card p-6 border border-slate-800 space-y-4">
+            <div class="flex items-center gap-2">
+                <span class="w-7 h-7 rounded-lg bg-amber-950 border border-amber-500/40 text-amber-300 font-mono font-bold text-xs flex items-center justify-center">
+                    #{{ loop.index }}
+                </span>
+                <span class="text-xs font-mono text-slate-500 uppercase">Dimensi {{ q.dimension }}</span>
+            </div>
+
+            <p class="text-sm md:text-base font-bold text-white font-heading leading-relaxed">
+                {{ q.text }}
+            </p>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 pt-1">
+                {% for opt in q.options %}
+                <div>
+                    <input type="radio" name="q_{{ q.id }}" value="{{ opt.val }}" id="q_{{ q.id }}_{{ opt.val }}" required class="hidden peer">
+                    <label for="q_{{ q.id }}_{{ opt.val }}" class="p-4 rounded-xl border border-slate-800 bg-slate-950/60 peer-checked:bg-amber-950/60 peer-checked:border-amber-400 text-slate-300 peer-checked:text-white flex items-start gap-3 cursor-pointer hover:border-slate-700 transition-all text-xs font-mono h-full">
+                        <span class="w-5 h-5 rounded-full border border-slate-600 peer-checked:border-amber-400 flex items-center justify-center shrink-0 mt-0.5">
+                            <span class="w-2.5 h-2.5 rounded-full bg-amber-400 opacity-0 peer-checked:opacity-100"></span>
+                        </span>
+                        <span class="leading-relaxed">{{ opt.text }}</span>
+                    </label>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endfor %}
+
+        <!-- Submit Button Card -->
+        <div class="glass-card p-6 border border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <p class="text-xs font-mono text-slate-400">
+                Data Rapor Diagnostik dan Profil Siswa akan otomatis ter-update secara akurat setelah kamu mengirimkan tes ini.
+            </p>
+            <button type="submit" class="w-full sm:w-auto bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 px-8 py-3 rounded-xl font-black text-xs font-heading flex items-center justify-center gap-2 shadow-lg shadow-amber-500/20 transition-all border border-amber-300 shrink-0">
+                <i class="bi bi-check-circle-fill text-base"></i> Simpan & Verifikasi MBTI Saya
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

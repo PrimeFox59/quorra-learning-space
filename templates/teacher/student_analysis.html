@@ -78,7 +78,13 @@
                         <span class="px-2.5 py-0.5 rounded-md bg-amber-500/20 border border-amber-500/40 text-amber-300 font-mono font-black text-xs">
                             MBTI TYPE: {{ data.psychological_profile.mbti_type }}
                         </span>
-                        <span class="text-xs text-slate-400 font-mono">• Profil Psikologi Karakter Belajar</span>
+                        {% if data.psychological_profile.mbti_source_is_test %}
+                        <span class="px-2 py-0.5 rounded bg-emerald-950 border border-emerald-500/40 text-emerald-300 text-[10px] font-mono font-bold">
+                            <i class="bi bi-patch-check-fill mr-1"></i> Hasil Tes Resmi ({{ data.psychological_profile.mbti_tested_at }})
+                        </span>
+                        {% else %}
+                        <span class="text-xs text-slate-400 font-mono">• Estimasi Karakter Kuis</span>
+                        {% endif %}
                     </div>
                     <h2 class="text-lg font-bold text-white font-heading mt-0.5">{{ data.psychological_profile.mbti_title }}</h2>
                     <p class="text-xs text-slate-300 mt-1 max-w-2xl font-mono leading-relaxed">

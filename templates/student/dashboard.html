@@ -33,29 +33,46 @@
 
             <!-- Action Buttons -->
             <div class="flex items-center gap-3 flex-wrap">
-                <a href="{{ url_for('student.join_class') }}" class="btn-space-cyan px-5 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 shadow-lg">
+                <a href="{{ url_for('student.mbti_test') }}" class="px-4 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 text-xs font-black font-heading flex items-center gap-2 shadow-lg shadow-amber-500/20 transition-all border border-amber-300">
+                    <i class="bi bi-person-badge-fill text-sm"></i> Tes MBTI Kepribadian Diri
+                </a>
+                <a href="{{ url_for('student.join_class') }}" class="btn-space-cyan px-4 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 shadow-lg">
                     <i class="bi bi-plus-circle-fill text-sm"></i> Join Kelas (Kode)
                 </a>
-                <a href="{{ url_for('student.analytics') }}" class="px-5 py-2.5 rounded-xl bg-cyan-950 border border-cyan-500/50 hover:bg-cyan-900 text-cyan-300 text-xs font-bold font-heading flex items-center gap-2 shadow-lg transition-colors">
+                <a href="{{ url_for('student.analytics') }}" class="px-4 py-2.5 rounded-xl bg-cyan-950 border border-cyan-500/50 hover:bg-cyan-900 text-cyan-300 text-xs font-bold font-heading flex items-center gap-2 shadow-lg transition-colors">
                     <i class="bi bi-radar text-sm"></i> Radar Potensi Diri
                 </a>
-                <a href="{{ url_for('student.performance') }}" class="btn-space-purple px-5 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 shadow-lg">
+                <a href="{{ url_for('student.performance') }}" class="btn-space-purple px-4 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 shadow-lg">
                     <i class="bi bi-graph-up-arrow text-sm"></i> Performa & Nilai
                 </a>
             </div>
         </div>
 
         <!-- EXP Progress Detail -->
-        <div class="mt-6 pt-5 border-t border-slate-800/80">
-            <div class="flex justify-between items-center text-xs font-mono mb-2">
-                <span class="text-slate-300 flex items-center gap-1.5">
-                    <i class="bi bi-shield-shaded text-cyan-400"></i> Progres Level {{ current_user.level }} <i class="bi bi-arrow-right text-slate-600 text-[10px]"></i> Level {{ current_user.level + 1 }}
-                </span>
-                <span class="text-cyan-400 font-bold">{{ current_user.exp }} EXP ({{ current_user.exp_progress_percent }}%)</span>
+        <div class="mt-6 pt-5 border-t border-slate-800/80 flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div class="flex-1">
+                <div class="flex justify-between items-center text-xs font-mono mb-2">
+                    <span class="text-slate-300 flex items-center gap-1.5">
+                        <i class="bi bi-shield-shaded text-cyan-400"></i> Progres Level {{ current_user.level }} <i class="bi bi-arrow-right text-slate-600 text-[10px]"></i> Level {{ current_user.level + 1 }}
+                    </span>
+                    <span class="text-cyan-400 font-bold">{{ current_user.exp }} EXP ({{ current_user.exp_progress_percent }}%)</span>
+                </div>
+                <div class="w-full exp-progress-container h-3">
+                    <div class="exp-progress-bar" style="width: {{ current_user.exp_progress_percent }}%;"></div>
+                </div>
             </div>
-            <div class="w-full exp-progress-container h-3">
-                <div class="exp-progress-bar" style="width: {{ current_user.exp_progress_percent }}%;"></div>
+
+            {% if current_user.mbti_type %}
+            <div class="p-3 rounded-xl bg-amber-950/40 border border-amber-500/40 flex items-center gap-3 shrink-0">
+                <div class="w-10 h-10 rounded-lg bg-amber-500/20 border border-amber-500/50 text-amber-400 font-black font-mono text-sm flex items-center justify-center">
+                    {{ current_user.mbti_type }}
+                </div>
+                <div>
+                    <span class="block text-[9px] font-mono text-amber-400 font-bold uppercase">KARAKTER MBTI RESMI</span>
+                    <span class="text-xs font-bold text-white font-heading">Terverifikasi via Tes</span>
+                </div>
             </div>
+            {% endif %}
         </div>
     </div>
 

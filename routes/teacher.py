@@ -922,12 +922,18 @@ def calculate_student_analytics(student, class_id):
     # 3. T (Thinking) vs F (Feeling): Berdasarkan respon rasionalitas efisiensi waktu vs ketabahan coba lagi
     # 4. J (Judging) vs P (Perceiving): Berdasarkan kepatuhan batas waktu & struktur pengerjaan
 
-    mbti_dim_1 = 'I' if total_attempts <= 2 else 'E'
-    mbti_dim_2 = 'S' if precision_score >= 75 else 'N'
-    mbti_dim_3 = 'T' if speed_score >= 70 else 'F'
-    mbti_dim_4 = 'J' if consistency_score >= 70 else 'P'
-
-    mbti_type = f"{mbti_dim_1}{mbti_dim_2}{mbti_dim_3}{mbti_dim_4}"
+    # Analisis Psikologis & Pemetaan MBTI Karakter Pembelajaran
+    # Prioritaskan MBTI resmi dari Tes MBTI Siswa jika ada
+    mbti_source_is_test = False
+    if student.mbti_type:
+        mbti_type = student.mbti_type
+        mbti_source_is_test = True
+    else:
+        mbti_dim_1 = 'I' if total_attempts <= 2 else 'E'
+        mbti_dim_2 = 'S' if precision_score >= 75 else 'N'
+        mbti_dim_3 = 'T' if speed_score >= 70 else 'F'
+        mbti_dim_4 = 'J' if consistency_score >= 70 else 'P'
+        mbti_type = f"{mbti_dim_1}{mbti_dim_2}{mbti_dim_3}{mbti_dim_4}"
 
     mbti_dict = {
         'ISTJ': {'title': 'The Inspector / Pengamat Tekun', 'trait': 'Metodis, sangat teliti pada detail, menyukai struktur materi yang sistematis.', 'icon': 'bi-shield-check'},
@@ -962,7 +968,9 @@ def calculate_student_analytics(student, class_id):
         'mbti_icon': mbti_profile['icon'],
         'psy_resilience': psy_resilience,
         'psy_risk_tolerance': psy_risk_tolerance,
-        'psy_focus_depth': psy_focus_depth
+        'psy_focus_depth': psy_focus_depth,
+        'mbti_source_is_test': mbti_source_is_test,
+        'mbti_tested_at': student.mbti_tested_at.strftime('%d %b %Y %H:%M') if student.mbti_tested_at else None
     }
 
     # Breakdown per kuis
