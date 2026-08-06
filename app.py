@@ -54,7 +54,8 @@ def create_app():
     @app.route('/quorra/api/public-activities')
     def get_public_activities():
         from models import PublicActivity
-        activities = PublicActivity.query.order_by(PublicActivity.created_at.desc()).limit(15).all()
+        # Saring aktivitas publik (abaikan event SUBMIT_QUIZ lama yang tersimpan di DB)
+        activities = PublicActivity.query.filter(PublicActivity.event_type != 'SUBMIT_QUIZ').order_by(PublicActivity.created_at.desc()).limit(15).all()
         data = []
         for a in activities:
             data.append({
@@ -67,6 +68,7 @@ def create_app():
                 'timestamp': a.created_at.strftime('%H:%M:%S')
             })
         return jsonify(data)
+
 
 
     # Initialize Database & Seed Default Accounts
