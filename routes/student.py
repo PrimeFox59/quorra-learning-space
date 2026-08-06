@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, redirect, url_for, flash, request, jsonify
 from flask_login import login_required, current_user
-from models import db, User, Class, ClassEnrollment, Quiz, Question, Option, QuizAttempt, StudentAnswer, Badge, UserBadge
+from models import db, User, Class, ClassEnrollment, Quiz, Question, Option, QuizAttempt, StudentAnswer, Badge, UserBadge, log_public_activity
 from datetime import datetime
 
 student_bp = Blueprint('student', __name__, url_prefix='/quorra/student')
