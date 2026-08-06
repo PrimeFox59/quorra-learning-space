@@ -6,14 +6,14 @@
 <div class="space-y-20 py-4 max-w-7xl mx-auto">
 
     <!-- 1. HERO SECTION -->
-    <section class="relative rounded-3xl overflow-hidden glass-card p-6 sm:p-10 md:p-14 border border-cyan-500/30">
+    <section class="relative rounded-3xl overflow-hidden glass-card p-6 sm:p-10 md:p-14 border border-cyan-500/30 motion-hero-card motion-glow-border">
         <!-- Ambient background glows -->
         <div class="absolute -top-32 -left-32 w-[30rem] h-[30rem] bg-cyan-500/10 rounded-full blur-[120px] pointer-events-none"></div>
         <div class="absolute -bottom-32 -right-32 w-[30rem] h-[30rem] bg-purple-500/10 rounded-full blur-[120px] pointer-events-none"></div>
 
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center relative z-10">
             <!-- Hero Left Content -->
-            <div class="lg:col-span-7 space-y-6 text-left">
+            <div class="lg:col-span-7 space-y-6 text-left motion-slide-in">
                 <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-900/90 border border-cyan-500/40 text-cyan-300 text-xs font-mono font-semibold shadow-inner">
                     <span class="w-2 h-2 rounded-full bg-cyan-400 animate-ping"></span>
                     <i class="bi bi-rocket-takeoff text-cyan-400"></i> Lembaga Bimbingan Belajar Sains & AI Terdepan
@@ -29,10 +29,10 @@
 
                 <!-- Action CTA Buttons -->
                 <div class="flex flex-wrap items-center gap-4 pt-2">
-                    <a href="{{ url_for('auth.login') }}" class="btn-space-cyan px-7 py-3.5 rounded-xl font-heading font-bold text-xs sm:text-sm flex items-center gap-2.5 shadow-lg shadow-cyan-500/20 hover:scale-[1.02] active:scale-[0.98] transition-all">
+                    <a href="{{ url_for('auth.login') }}" class="btn-space-cyan px-7 py-3.5 rounded-xl font-heading font-bold text-xs sm:text-sm flex items-center gap-2.5 shadow-lg shadow-cyan-500/20 hover-lift">
                         <i class="bi bi-box-arrow-in-right text-base"></i> Login Stasiun
                     </a>
-                    <a href="{{ url_for('auth.login') }}" class="btn-space-purple px-7 py-3.5 rounded-xl font-heading font-bold text-xs sm:text-sm flex items-center gap-2.5 shadow-lg shadow-purple-500/20 hover:scale-[1.02] active:scale-[0.98] transition-all">
+                    <a href="{{ url_for('auth.login') }}" class="btn-space-purple px-7 py-3.5 rounded-xl font-heading font-bold text-xs sm:text-sm flex items-center gap-2.5 shadow-lg shadow-purple-500/20 hover-lift">
                         <i class="bi bi-person-plus-fill text-base"></i> Daftar Astronot Baru
                     </a>
                 </div>
@@ -55,8 +55,8 @@
             </div>
 
             <!-- Hero Right Visual Banner -->
-            <div class="lg:col-span-5 relative">
-                <div class="relative rounded-2xl overflow-hidden border border-slate-700/80 shadow-2xl shadow-cyan-500/10 group">
+            <div class="lg:col-span-5 relative motion-float-hologram">
+                <div class="relative rounded-2xl overflow-hidden border border-slate-700/80 shadow-2xl shadow-cyan-500/20 group hover-lift">
                     <img src="{{ url_for('static', filename='uploads/landing/hero_banner.png') }}" alt="Quorra Space Learning Station" class="w-full h-auto object-cover transform group-hover:scale-105 transition-transform duration-700">
                     <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent"></div>
                     
@@ -74,7 +74,7 @@
 
 
     <!-- 2. CORE ADVANTAGES SECTION -->
-    <section class="space-y-10">
+    <section class="space-y-10 reveal-on-scroll">
         <div class="text-center max-w-3xl mx-auto space-y-2">
             <span class="text-xs font-mono text-cyan-400 font-bold uppercase tracking-widest flex items-center justify-center gap-1.5">
                 <i class="bi bi-cpu"></i> Keunggulan Utama Stasiun
@@ -89,7 +89,7 @@
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <!-- Advantage Card 1 -->
-            <div class="glass-card p-6 border border-slate-800/80 hover:border-cyan-500/60 transition-all space-y-4 group">
+            <div class="glass-card p-6 border border-slate-800/80 hover:border-cyan-500/60 transition-all space-y-4 group hover-lift reveal-on-scroll delay-100">
                 <div class="w-12 h-12 rounded-2xl bg-cyan-950 border border-cyan-500/40 text-cyan-400 flex items-center justify-center text-2xl group-hover:scale-110 transition-transform shadow-md">
                     <i class="bi bi-robot"></i>
                 </div>
@@ -100,7 +100,7 @@
             </div>
 
             <!-- Advantage Card 2 -->
-            <div class="glass-card p-6 border border-slate-800/80 hover:border-amber-500/60 transition-all space-y-4 group">
+            <div class="glass-card p-6 border border-slate-800/80 hover:border-amber-500/60 transition-all space-y-4 group hover-lift reveal-on-scroll delay-200">
                 <div class="w-12 h-12 rounded-2xl bg-amber-950 border border-amber-500/40 text-amber-400 flex items-center justify-center text-2xl group-hover:scale-110 transition-transform shadow-md">
                     <i class="bi bi-controller"></i>
                 </div>
@@ -111,7 +111,7 @@
             </div>
 
             <!-- Advantage Card 3 -->
-            <div class="glass-card p-6 border border-slate-800/80 hover:border-purple-500/60 transition-all space-y-4 group">
+            <div class="glass-card p-6 border border-slate-800/80 hover:border-purple-500/60 transition-all space-y-4 group hover-lift reveal-on-scroll delay-300">
                 <div class="w-12 h-12 rounded-2xl bg-purple-950 border border-purple-500/40 text-purple-400 flex items-center justify-center text-2xl group-hover:scale-110 transition-transform shadow-md">
                     <i class="bi bi-graph-up-arrow"></i>
                 </div>
@@ -122,7 +122,7 @@
             </div>
 
             <!-- Advantage Card 4 -->
-            <div class="glass-card p-6 border border-slate-800/80 hover:border-emerald-500/60 transition-all space-y-4 group">
+            <div class="glass-card p-6 border border-slate-800/80 hover:border-emerald-500/60 transition-all space-y-4 group hover-lift reveal-on-scroll delay-400">
                 <div class="w-12 h-12 rounded-2xl bg-emerald-950 border border-emerald-500/40 text-emerald-400 flex items-center justify-center text-2xl group-hover:scale-110 transition-transform shadow-md">
                     <i class="bi bi-trophy-fill"></i>
                 </div>
@@ -136,7 +136,7 @@
 
 
     <!-- 3. AUTOPLAY CAROUSEL: GURU & MENTOR (DYNAMIC FROM CMS DB) -->
-    <section class="space-y-6">
+    <section class="space-y-6 reveal-on-scroll">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
                 <span class="text-xs font-mono text-purple-400 font-bold uppercase tracking-widest flex items-center gap-1.5">
@@ -164,7 +164,7 @@
         <!-- Teacher Carousel Track -->
         <div id="teacherCarousel" class="flex items-stretch gap-6 overflow-x-auto scroll-smooth py-3 px-1 no-scrollbar snap-x snap-mandatory">
             {% for t in teachers %}
-            <div class="carousel-item glass-card p-5 w-[300px] sm:w-[360px] lg:w-[380px] shrink-0 border border-slate-800 space-y-4 flex flex-col justify-between hover:border-purple-500/60 transition-all rounded-2xl snap-start">
+            <div class="carousel-item glass-card p-5 w-[300px] sm:w-[360px] lg:w-[380px] shrink-0 border border-slate-800 space-y-4 flex flex-col justify-between hover:border-purple-500/60 transition-all rounded-2xl snap-start hover-lift">
                 <div class="space-y-3.5">
                     <div class="relative rounded-xl overflow-hidden border border-purple-500/30 bg-slate-950 aspect-[4/3]">
                         <img src="{{ url_for('static', filename=t.photo_path or 'uploads/landing/teacher_alistair.png') }}" alt="{{ t.name }}" class="w-full h-full object-cover object-top">
@@ -191,7 +191,7 @@
 
 
     <!-- 4. AUTOPLAY CAROUSEL: MURID BERPRESTASI & TESTIMONI (DYNAMIC FROM CMS DB) -->
-    <section class="space-y-6">
+    <section class="space-y-6 reveal-on-scroll">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
                 <span class="text-xs font-mono text-amber-400 font-bold uppercase tracking-widest flex items-center gap-1.5">
@@ -219,7 +219,7 @@
         <!-- Student Autoplay Carousel Track -->
         <div id="studentCarousel" class="flex items-stretch gap-6 overflow-x-auto scroll-smooth py-3 px-1 no-scrollbar snap-x snap-mandatory">
             {% for s in students %}
-            <div class="carousel-item glass-card p-5 w-[300px] sm:w-[360px] lg:w-[380px] shrink-0 border border-amber-500/40 space-y-4 flex flex-col justify-between rounded-2xl snap-start hover:border-amber-400 transition-all">
+            <div class="carousel-item glass-card p-5 w-[300px] sm:w-[360px] lg:w-[380px] shrink-0 border border-amber-500/40 space-y-4 flex flex-col justify-between rounded-2xl snap-start hover:border-amber-400 transition-all hover-lift">
                 <div class="space-y-3.5">
                     <div class="flex items-center gap-3">
                         <img src="{{ url_for('static', filename=s.photo_path or 'uploads/landing/student_arya.png') }}" alt="{{ s.name }}" class="w-14 h-14 rounded-full border-2 border-amber-400 object-cover object-top shrink-0 shadow-md">
@@ -244,7 +244,7 @@
 
 
     <!-- 5. PROMOTIONAL JOIN CTA SECTION -->
-    <section class="glass-card p-8 sm:p-12 md:p-14 border border-cyan-400/60 relative overflow-hidden text-center space-y-6 shadow-2xl shadow-cyan-500/10">
+    <section class="glass-card p-8 sm:p-12 md:p-14 border border-cyan-400/60 relative overflow-hidden text-center space-y-6 shadow-2xl shadow-cyan-500/10 reveal-on-scroll motion-glow-border">
         <div class="absolute -top-24 -left-24 w-96 h-96 bg-cyan-500/15 rounded-full blur-3xl pointer-events-none"></div>
         <div class="absolute -bottom-24 -right-24 w-96 h-96 bg-purple-500/15 rounded-full blur-3xl pointer-events-none"></div>
 
@@ -259,10 +259,10 @@
                 Daftar sekarang dan langsung dapatkan **+100 EXP Welcome Bonus**, akses gratis ke kuis AI Gemini, serta bimbingan intensif dari mentor profesional!
             </p>
             <div class="flex flex-wrap items-center justify-center gap-4 pt-3">
-                <a href="{{ url_for('auth.login') }}" class="btn-space-cyan px-8 py-3.5 rounded-xl font-heading font-bold text-xs sm:text-sm flex items-center gap-2 shadow-xl shadow-cyan-500/20 hover:scale-[1.02] transition-all">
+                <a href="{{ url_for('auth.login') }}" class="btn-space-cyan px-8 py-3.5 rounded-xl font-heading font-bold text-xs sm:text-sm flex items-center gap-2 shadow-xl shadow-cyan-500/20 hover-lift">
                     <i class="bi bi-rocket-takeoff-fill text-base"></i> Gabung Sekarang (Register)
                 </a>
-                <a href="{{ url_for('auth.login') }}" class="btn-space-purple px-8 py-3.5 rounded-xl font-heading font-bold text-xs sm:text-sm flex items-center gap-2 shadow-xl shadow-purple-500/20 hover:scale-[1.02] transition-all">
+                <a href="{{ url_for('auth.login') }}" class="btn-space-purple px-8 py-3.5 rounded-xl font-heading font-bold text-xs sm:text-sm flex items-center gap-2 shadow-xl shadow-purple-500/20 hover-lift">
                     <i class="bi bi-shield-lock-fill text-base"></i> Login Stasiun
                 </a>
             </div>
@@ -271,80 +271,93 @@
 
 
     <!-- 6. FAQ & CONTACT SECTION (DYNAMIC FROM CMS DB) -->
-    <section class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+    <section class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start reveal-on-scroll">
         <!-- FAQ Accordion (Left 6 cols) -->
         <div class="lg:col-span-6 space-y-4">
             <div>
                 <span class="text-xs font-mono text-cyan-400 font-bold uppercase tracking-widest flex items-center gap-1.5 mb-1">
                     <i class="bi bi-question-circle"></i> Pertanyaan Umum (FAQ)
                 </span>
-                <h2 class="text-2xl font-black text-white font-heading">Informasi Pendaftaran & Sistem</h2>
+                <h2 class="text-2xl sm:text-3xl font-black text-white font-heading">
+                    Informasi Pendaftaran & Bimbingan
+                </h2>
             </div>
 
-            <div class="space-y-3 font-sans">
-                {% for f in faqs %}
-                <details class="glass-card border border-slate-800 rounded-2xl p-4 group cursor-pointer">
-                    <summary class="font-bold text-white text-xs sm:text-sm font-heading flex items-center justify-between">
-                        <span>{{ f.question }}</span>
-                        <i class="bi bi-chevron-down text-slate-400 group-open:rotate-180 transition-transform"></i>
-                    </summary>
-                    <p class="text-xs text-slate-400 mt-2.5 leading-relaxed font-mono">
-                        {{ f.answer }}
-                    </p>
-                </details>
+            <div class="space-y-3">
+                {% for faq in faqs %}
+                <div class="glass-card border border-slate-800 rounded-xl overflow-hidden">
+                    <button onclick="toggleFaq('faq-{{ faq.id }}')" class="w-full p-4 text-left flex justify-between items-center gap-4 hover:bg-slate-900/60 transition-colors">
+                        <span class="font-bold text-sm text-white font-heading">{{ faq.question }}</span>
+                        <i id="icon-faq-{{ faq.id }}" class="bi bi-chevron-down text-cyan-400 transition-transform duration-300"></i>
+                    </button>
+                    <div id="faq-{{ faq.id }}" class="hidden p-4 pt-0 text-xs text-slate-300 leading-relaxed border-t border-slate-800/80 font-normal">
+                        {{ faq.answer }}
+                    </div>
+                </div>
                 {% endfor %}
             </div>
         </div>
 
-        <!-- Contact Box & Quick Form (Right 6 cols) -->
-        <div class="lg:col-span-6 space-y-4">
-            <div>
-                <span class="text-xs font-mono text-purple-400 font-bold uppercase tracking-widest flex items-center gap-1.5 mb-1">
-                    <i class="bi bi-envelope"></i> Layanan Konsultasi
+        <!-- Contact Support Card (Right 6 cols) -->
+        <div class="lg:col-span-6 glass-card p-6 sm:p-8 border border-purple-500/40 space-y-5 rounded-2xl">
+            <div class="space-y-2">
+                <span class="px-3 py-1 rounded-full bg-purple-950 border border-purple-500/40 text-purple-300 text-[10px] font-mono font-bold uppercase">
+                    PUSAT BANTULAN & KONSULTASI
                 </span>
-                <h2 class="text-2xl font-black text-white font-heading">Hubungi Tim Stasiun</h2>
+                <h3 class="text-xl font-bold text-white font-heading">Hubungi Stasiun Komando</h3>
+                <p class="text-xs text-slate-300 leading-relaxed font-normal">
+                    Punya pertanyaan seputar kurikulum, jadwal bimbingan, atau kendala pendaftaran? Tim layanan Quorra Space siap melayani Anda.
+                </p>
             </div>
 
-            <div class="glass-card p-6 border border-slate-800 space-y-4">
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs font-mono">
-                    <div class="p-3 rounded-xl bg-slate-950 border border-slate-800 flex items-center gap-3">
-                        <i class="bi bi-whatsapp text-emerald-400 text-xl shrink-0"></i>
-                        <div>
-                            <span class="text-[9px] text-slate-500 block">WHATSAPP HOTLINE</span>
-                            <a href="https://wa.me/6281234567890" target="_blank" class="text-emerald-300 font-bold hover:underline">+62 812-3456-7890</a>
-                        </div>
-                    </div>
-                    <div class="p-3 rounded-xl bg-slate-950 border border-slate-800 flex items-center gap-3">
-                        <i class="bi bi-envelope text-cyan-400 text-xl shrink-0"></i>
-                        <div>
-                            <span class="text-[9px] text-slate-500 block">EMAIL SUPPORT</span>
-                            <a href="mailto:support@primeprojectx.net" class="text-cyan-300 font-bold hover:underline truncate block">support@primeprojectx.net</a>
-                        </div>
+            <div class="space-y-3 text-xs font-mono">
+                <div class="p-3.5 rounded-xl bg-slate-950/80 border border-slate-800 flex items-center gap-3">
+                    <i class="bi bi-envelope-at-fill text-cyan-400 text-lg"></i>
+                    <div>
+                        <span class="block text-[10px] text-slate-400 uppercase">Email Layanan Stasiun</span>
+                        <span class="font-bold text-white">support@quorra-space.com</span>
                     </div>
                 </div>
 
-                <form onsubmit="event.preventDefault(); alert('Pesan Anda telah diterima oleh Stasiun Quorra. Tim kami akan segera menghubungi Anda!');" class="space-y-3 pt-1">
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        <input type="text" required placeholder="Nama Lengkap" class="w-full px-3.5 py-2 bg-slate-950 border border-slate-700/80 rounded-xl text-xs text-slate-100 placeholder-slate-600 focus:outline-none focus:border-cyan-400">
-                        <input type="text" required placeholder="Nomor WhatsApp" class="w-full px-3.5 py-2 bg-slate-950 border border-slate-700/80 rounded-xl text-xs text-slate-100 placeholder-slate-600 focus:outline-none focus:border-cyan-400">
+                <div class="p-3.5 rounded-xl bg-slate-950/80 border border-slate-800 flex items-center gap-3">
+                    <i class="bi bi-whatsapp text-emerald-400 text-lg"></i>
+                    <div>
+                        <span class="block text-[10px] text-slate-400 uppercase">WhatsApp Helpdesk</span>
+                        <span class="font-bold text-white">+62 812-3456-7890</span>
                     </div>
-                    <textarea rows="2" required placeholder="Tuliskan pertanyaan atau informasi program..." class="w-full px-3.5 py-2 bg-slate-950 border border-slate-700/80 rounded-xl text-xs text-slate-100 placeholder-slate-600 focus:outline-none focus:border-cyan-400"></textarea>
-                    <button type="submit" class="w-full btn-space-cyan py-2.5 rounded-xl font-bold text-xs font-heading flex items-center justify-center gap-2">
-                        <i class="bi bi-send"></i> Kirim Pesan Konsultasi
-                    </button>
-                </form>
+                </div>
+
+                <div class="p-3.5 rounded-xl bg-slate-950/80 border border-slate-800 flex items-center gap-3">
+                    <i class="bi bi-geo-alt-fill text-amber-400 text-lg"></i>
+                    <div>
+                        <span class="block text-[10px] text-slate-400 uppercase">Lokasi Pusat Riset & Stasiun</span>
+                        <span class="font-bold text-white">Gedung Stasiun Kuantum Lt. 4, Jakarta</span>
+                    </div>
+                </div>
             </div>
         </div>
     </section>
-
 </div>
 
-<!-- AUTOPLAY CAROUSEL SCRIPT WITH PAUSE ON HOVER -->
 <script>
-function initAutoplayCarousel(carouselId, dotsId, intervalMs) {
+function toggleFaq(id) {
+    const el = document.getElementById(id);
+    const icon = document.getElementById('icon-' + id);
+    if (!el) return;
+    if (el.classList.contains('hidden')) {
+        el.classList.remove('hidden');
+        if (icon) icon.style.transform = 'rotate(180deg)';
+    } else {
+        el.classList.add('hidden');
+        if (icon) icon.style.transform = 'rotate(0deg)';
+    }
+}
+
+// Autoplay Carousel Handler
+function initAutoplayCarousel(carouselId, dotsContainerId, intervalMs = 4000) {
     const carousel = document.getElementById(carouselId);
-    const dotsContainer = document.getElementById(dotsId);
-    if (!carousel) return;
+    const dotsContainer = document.getElementById(dotsContainerId);
+    if (!carousel || !dotsContainer) return;
 
     const items = carousel.querySelectorAll('.carousel-item');
     if (items.length === 0) return;
@@ -352,19 +365,18 @@ function initAutoplayCarousel(carouselId, dotsId, intervalMs) {
     let currentIndex = 0;
     let isHovered = false;
 
-    // Create Dot Indicators
-    if (dotsContainer) {
-        dotsContainer.innerHTML = '';
-        items.forEach((_, idx) => {
-            const dot = document.createElement('button');
-            dot.className = `w-2.5 h-2.5 rounded-full transition-all duration-300 ${idx === 0 ? 'bg-cyan-400 w-5' : 'bg-slate-700 hover:bg-slate-500'}`;
-            dot.onclick = () => scrollToIndex(idx);
-            dotsContainer.appendChild(dot);
-        });
-    }
+    // Create Dots
+    dotsContainer.innerHTML = '';
+    items.forEach((_, idx) => {
+        const dot = document.createElement('button');
+        dot.className = idx === 0 
+            ? 'w-5 h-2.5 rounded-full bg-cyan-400 transition-all duration-300' 
+            : 'w-2.5 h-2.5 rounded-full bg-slate-700 hover:bg-slate-500 transition-all duration-300';
+        dot.addEventListener('click', () => scrollToIndex(idx));
+        dotsContainer.appendChild(dot);
+    });
 
     function updateDots() {
-        if (!dotsContainer) return;
         const dots = dotsContainer.querySelectorAll('button');
         dots.forEach((dot, idx) => {
             if (idx === currentIndex) {
@@ -375,36 +387,25 @@ function initAutoplayCarousel(carouselId, dotsId, intervalMs) {
         });
     }
 
-    function getItemWidth() {
-        const item = items[0];
-        const gap = 24; // gap-6
-        return item.offsetWidth + gap;
-    }
-
     function scrollToIndex(index) {
         currentIndex = (index + items.length) % items.length;
         carousel.scrollTo({
-            left: currentIndex * getItemWidth(),
+            left: currentIndex * (items[0].offsetWidth + 24),
             behavior: 'smooth'
         });
         updateDots();
     }
 
-    // Auto Slide Timer
     const timer = setInterval(() => {
-        if (!isHovered) {
-            scrollToIndex(currentIndex + 1);
-        }
+        if (!isHovered) scrollToIndex(currentIndex + 1);
     }, intervalMs);
 
-    // Pause on Hover
-    carousel.addEventListener('mouseenter', () => { isHovered = true; });
-    carousel.addEventListener('mouseleave', () => { isHovered = false; });
+    carousel.addEventListener('mouseenter', () => isHovered = true);
+    carousel.addEventListener('mouseleave', () => isHovered = false);
 
-    // Handle Manual Drag/Scroll sync
     carousel.addEventListener('scroll', () => {
-        const width = getItemWidth();
-        const newIdx = Math.round(carousel.scrollLeft / width);
+        const itemWidth = items[0].offsetWidth + 24;
+        const newIdx = Math.round(carousel.scrollLeft / itemWidth);
         if (newIdx !== currentIndex && newIdx >= 0 && newIdx < items.length) {
             currentIndex = newIdx;
             updateDots();
@@ -421,10 +422,30 @@ function manualScroll(carouselId, direction) {
     carousel.scrollBy({ left: direction * itemWidth, behavior: 'smooth' });
 }
 
-// Initialize Both Carousels on Page Load
+// Initialize Both Carousels & Motion Scroll Reveal on Page Load
 document.addEventListener('DOMContentLoaded', () => {
     initAutoplayCarousel('teacherCarousel', 'teacherDots', 3500);
     initAutoplayCarousel('studentCarousel', 'studentDots', 4000);
+
+    // Scroll Reveal Observer
+    const observerOptions = {
+        root: null,
+        rootMargin: '0px',
+        threshold: 0.15
+    };
+
+    const revealObserver = new IntersectionObserver((entries, observer) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('is-visible');
+                observer.unobserve(entry.target);
+            }
+        });
+    }, observerOptions);
+
+    document.querySelectorAll('.reveal-on-scroll').forEach(el => {
+        revealObserver.observe(el);
+    });
 });
 </script>
 {% endblock %}
